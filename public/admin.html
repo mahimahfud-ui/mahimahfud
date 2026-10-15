@@ -108,9 +108,13 @@
     const root=$('#video-list');
     if(!state.videos.length){root.innerHTML='<div class="empty">No videos yet.<br>Your first original will appear here after upload.</div>';return;}
     root.innerHTML=state.videos.map((v,i)=>{
-      const img=v.thumb_key?'<img alt="" loading="lazy" src="/api/v/'+esc(v.id)+'/thumb?t='+encodeURIComponent(sessionToken())+'">':'';
+      const img=v.thumb_key?'<img alt="" loading="lazy" data-thumb-id="'+esc(v.id)+'">':'';
       return '<article class="video-item" data-id="'+esc(v.id)+'"><div class="thumb">'+img+'</div><div><div class="item-title"><input data-field="title" maxlength="120" aria-label="Video title" value="'+esc(v.title||'')+'"><span class="status '+(v.status==='ready'?(v.published?'ready':'draft'):'')+'">'+esc(v.status==='ready'?(v.published?'Published':'Draft'):v.status)+'</span></div><div class="item-meta"><span>'+esc(sizeLabel(v.size))+'</span><span>'+esc(timeLabel(v.duration))+'</span><span>'+(v.width&&v.height?esc(v.width+' × '+v.height):'Resolution unknown')+'</span></div><div class="item-fields"><input data-field="category" maxlength="80" aria-label="Category" placeholder="Category" value="'+esc(v.category||'')+'"><input data-field="cover" class="cover-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Replace cover"><textarea data-field="description" maxlength="1800" aria-label="Description" placeholder="Description">'+esc(v.description||'')+'</textarea></div><div class="item-bottom"><label class="switch"><input data-field="published" type="checkbox" '+(v.published?'checked':'')+' '+(v.status!=='ready'?'disabled':'')+'> Published</label><label class="switch"><input data-field="featured" type="checkbox" '+(v.featured?'checked':'')+'> Featured</label><div class="item-actions"><button class="btn small" data-action="up" '+(i===0?'disabled':'')+' title="Move up">↑</button><button class="btn small" data-action="down" '+(i===state.videos.length-1?'disabled':'')+' title="Move down">↓</button><button class="btn small" data-action="save">Save</button><button class="btn small danger" data-action="delete">Delete</button></div></div></div></article>';
     }).join('');
+    root.querySelectorAll('img[data-thumb-id]').forEach(async img=>{
+      try { const d=await api('/api/admin/videos/'+encodeURIComponent(img.dataset.thumbId)+'/thumb-view-url',{headers:{Accept:'application/json'}}); img.src=d.url; }
+      catch { img.remove(); }
+    });
   }
   async function refresh(){try{await Promise.all([loadProfile(),loadVideos()]);}catch(e){toast(e.message);}}
   function inspectVideo(file){
