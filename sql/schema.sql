@@ -27,7 +27,7 @@ create table if not exists public.mf_videos (
   size bigint not null check (size > 0),
   width integer,
   height integer,
-  duration numeric(10,3),
+  duration numeric(10,3) check (duration is null or duration between 1 and 90),
   original_key text not null unique,
   thumb_key text unique,
   upload_id text,
