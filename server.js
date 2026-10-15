@@ -74,6 +74,7 @@ A.get('/videos/:id/thumb-view-url', async (q, r) => {
 A.post('/upload/init', async (q, r) => {
   const { name, type, size, width, height, duration } = q.body, ext = TYPES[type];
   if (!ext) return fail(r, 400, 'Unsupported file type. Use MP4, MOV or WebM.');
+  if (!(Number.isFinite(Number(duration)) && Number(duration) >= 1 && Number(duration) <= 90)) return fail(r, 400, 'Videos must be between 1 and 90 seconds.');
   if (!(size > 0) || size > MAXMB * 1048576) return fail(r, 413, `File is larger than the ${MAXMB} MB limit.`);
   const id = randomUUID(), key = `originals/${id}.${ext}`;
   const { UploadId } = await s3.send(new CreateMultipartUploadCommand({ Bucket: B, Key: key, ContentType: type }));
