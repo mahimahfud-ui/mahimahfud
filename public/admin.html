@@ -141,53 +141,44 @@
     const pct=total?Math.min(100,bytes/total*100):0;
     $('#progress-label').textContent=label;$('#progress-percent').textContent=Math.round(pct)+'%';$('#progress-fill').style.width=pct+'%';
   }
-  function xhrPut(url,blob,type,onProgress){
+  function cloudinaryUpload(init,file,onProgress){
     return new Promise((resolve,reject)=>{
-      const x=new XMLHttpRequest();state.activeXhr=x;x.open('PUT',url);x.setRequestHeader('Content-Type',type||'application/octet-stream');
-      x.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded);};
-      x.onload=()=>{state.activeXhr=null;if(x.status>=200&&x.status<300)resolve(x.getResponseHeader('ETag'));else reject(new Error('Storage upload failed ('+x.status+'). Check bucket CORS settings.'));};
-      x.onerror=()=>{state.activeXhr=null;reject(new Error('Network error while uploading to storage.'));};
-      x.onabort=()=>{state.activeXhr=null;reject(new Error('Upload cancelled.'));};x.send(blob);
+      const x=new XMLHttpRequest(),form=new FormData();
+      form.append('file',file);form.append('api_key',init.api_key);form.append('timestamp',String(init.timestamp));
+      form.append('public_id',init.public_id);form.append('signature',init.signature);
+      x.open('POST',init.upload_url);state.activeXhr=x;
+      x.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded,e.total);};
+      x.onload=()=>{state.activeXhr=null;let data={};try{data=JSON.parse(x.responseText||'{}');}catch{}if(x.status>=200&&x.status<300)resolve(data);else reject(new Error(data.error?.message||('Cloudinary upload failed ('+x.status+').')));};
+      x.onerror=()=>{state.activeXhr=null;reject(new Error('Network error while uploading to Cloudinary.'));};
+      x.onabort=()=>{state.activeXhr=null;reject(new Error('Upload cancelled.'));};x.send(form);
     });
-  }
-  async function uploadPartWithRetry(id,part,blob,onProgress){
-    let last;
-    for(let attempt=0;attempt<4;attempt++){
-      if(state.cancelled)throw new Error('Upload cancelled.');
-      try{const u=await api('/api/admin/upload/part-url',{method:'POST',body:JSON.stringify({id,part})});return await xhrPut(u.url,blob,'application/octet-stream',onProgress);}
-      catch(e){last=e;if(state.cancelled)throw e;if(attempt<3)await new Promise(r=>setTimeout(r,600*(attempt+1)));}
-    }
-    throw last||new Error('Part upload failed.');
   }
   async function uploadCover(id,cover){
     if(!cover)return;
     const init=await api('/api/admin/videos/'+encodeURIComponent(id)+'/thumb-url',{method:'POST',body:JSON.stringify({type:cover.type})});
-    await xhrPut(init.url,cover,cover.type,()=>{});
+    const asset=await cloudinaryUpload(init,cover,()=>{});
+    await api('/api/admin/videos/'+encodeURIComponent(id)+'/thumb-complete',{method:'POST',body:JSON.stringify({public_id:asset.public_id,bytes:asset.bytes})});
   }
   async function startUpload(e){
     e.preventDefault();const file=$('#video-file').files[0];if(!file)return;
     const allowed=['video/mp4','video/quicktime','video/webm'];
-    if(!allowed.includes(file.type)){toast('Unsupported video type. Choose MP4, MOV or WebM with a recognizable file type.');return;}
+    if(!allowed.includes(file.type)){toast('Unsupported video type. Choose MP4, MOV or WebM.');return;}
+    if(file.size>100*1024*1024){toast('Cloudinary Free upload limit is 100 MB per video. Choose a smaller export.');return;}
     state.cancelled=false;state.upload=null;$('#progress-wrap').style.display='block';$('#start-upload').disabled=true;$('#cancel-upload').disabled=false;
     let uploadId=null,completed=false;
     try{
       const meta=await inspectVideo(file);
-      if(meta.duration===null || meta.duration<1 || meta.duration>90) throw new Error('Videos must be between 1 and 90 seconds. The browser could not read this video’s duration, or it is outside the limit.');
+      if(meta.duration===null || meta.duration<1 || meta.duration>90) throw new Error('Videos must be between 1 and 90 seconds.');
       let cover=$('#thumbnail').files[0]||null;
-      setProgress('Preparing upload…',0,file.size);
+      setProgress('Preparing secure upload…',0,file.size);
       const init=await api('/api/admin/upload/init',{method:'POST',body:JSON.stringify({name:file.name,type:file.type,size:file.size,width:meta.width,height:meta.height,duration:meta.duration})});
       uploadId=init.id;state.upload=uploadId;
-      const partSize=Number(init.partSize)||16777216,totalParts=Math.ceil(file.size/partSize),parts=[];let uploaded=0;
-      for(let i=0;i<totalParts;i++){
-        if(state.cancelled)throw new Error('Upload cancelled.');
-        const blob=file.slice(i*partSize,Math.min(file.size,(i+1)*partSize));setProgress('Uploading part '+(i+1)+' of '+totalParts+'…',uploaded,file.size);
-        let etag=await uploadPartWithRetry(uploadId,i+1,blob,loaded=>setProgress('Uploading part '+(i+1)+' of '+totalParts+'…',uploaded+loaded,file.size));
-        if(!etag)throw new Error('Storage did not return an ETag. Check R2 CORS ExposeHeaders includes ETag.');
-        parts.push({PartNumber:i+1,ETag:etag});uploaded+=blob.size;setProgress('Uploading…',uploaded,file.size);
-      }
       if(state.cancelled)throw new Error('Upload cancelled.');
-      setProgress('Verifying stored original…',file.size,file.size);
-      await api('/api/admin/upload/complete',{method:'POST',body:JSON.stringify({id:uploadId,parts})});completed=true;
+      setProgress('Uploading original to Cloudinary…',0,file.size);
+      const asset=await cloudinaryUpload(init,file,(loaded,total)=>setProgress('Uploading original to Cloudinary…',loaded,total||file.size));
+      if(state.cancelled)throw new Error('Upload cancelled.');
+      setProgress('Verifying original file…',file.size,file.size);
+      await api('/api/admin/upload/complete',{method:'POST',body:JSON.stringify({id:uploadId,public_id:asset.public_id})});completed=true;
       const payload={title:$('#title').value.trim()||file.name,description:$('#description').value.trim(),category:$('#category').value.trim(),published:$('#publish-now').checked,featured:false};
       await api('/api/admin/videos/'+encodeURIComponent(uploadId),{method:'PATCH',body:JSON.stringify(payload)});
       if(!cover)cover=await createThumbnail(file);
@@ -195,7 +186,7 @@
         if(!cover.type||!['image/jpeg','image/png','image/webp'].includes(cover.type))throw new Error('Thumbnail must be JPEG, PNG or WebP.');
         await uploadCover(uploadId,cover);
       }
-      setProgress('Upload complete',file.size,file.size);toast('Original uploaded successfully.');
+      setProgress('Upload complete',file.size,file.size);toast('Original uploaded and verified.');
       $('#upload-form').reset();$('#progress-label').textContent='Original stored and verified.';await loadVideos();
     }catch(err){
       console.error('MahiFrame upload failed',err);
