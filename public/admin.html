@@ -171,7 +171,9 @@
     state.cancelled=false;state.upload=null;$('#progress-wrap').style.display='block';$('#start-upload').disabled=true;$('#cancel-upload').disabled=false;
     let uploadId=null,completed=false;
     try{
-      const meta=await inspectVideo(file);let cover=$('#thumbnail').files[0]||null;
+      const meta=await inspectVideo(file);
+      if(meta.duration===null || meta.duration<1 || meta.duration>90) throw new Error('Videos must be between 1 and 90 seconds. The browser could not read this video’s duration, or it is outside the limit.');
+      let cover=$('#thumbnail').files[0]||null;
       setProgress('Preparing upload…',0,file.size);
       const init=await api('/api/admin/upload/init',{method:'POST',body:JSON.stringify({name:file.name,type:file.type,size:file.size,width:meta.width,height:meta.height,duration:meta.duration})});
       uploadId=init.id;state.upload=uploadId;
