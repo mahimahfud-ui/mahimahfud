@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: mahiframe
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        value: mahiframe
+      - key: SUPABASE_URL
+        value: https://husydmiujigyonlxbuuj.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: sb_publishable_zzAitNIGOutgaS5EGZKfrQ_osRrlu8U
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: OWNER_EMAIL
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+      - key: MAX_UPLOAD_MB
+        value: "2048"
