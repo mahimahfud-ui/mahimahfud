@@ -6,18 +6,22 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createClient } from '@supabase/supabase-js';
 
 const E = process.env, B = E.R2_BUCKET;
-const s3 = new S3Client({ region: 'auto', endpoint: `https://${E.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`, credentials: { accessKeyId: E.R2_ACCESS_KEY_ID, secretAccessKey: E.R2_SECRET_ACCESS_KEY } });
-const sb = createClient(E.SUPABASE_URL, E.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } });
+const configured = value => Boolean(value && !/^SET_|^YOUR-/i.test(String(value).trim()));
+const hasR2 = configured(E.R2_ACCOUNT_ID) && configured(E.R2_ACCESS_KEY_ID) && configured(E.R2_SECRET_ACCESS_KEY) && configured(B);
+const hasSupabase = configured(E.SUPABASE_URL) && configured(E.SUPABASE_SERVICE_KEY);
+const s3 = hasR2 ? new S3Client({ region: 'auto', endpoint: `https://${E.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`, credentials: { accessKeyId: E.R2_ACCESS_KEY_ID, secretAccessKey: E.R2_SECRET_ACCESS_KEY } }) : null;
+const sb = hasSupabase ? createClient(E.SUPABASE_URL, E.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } }) : null;
+const needs = (...items) => items.filter(([ok]) => !ok).map(([, name]) => name);
 const TYPES = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm' };
 const IMG = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
 const MAXMB = Number(E.MAX_UPLOAD_MB || 2048), PART = 16 * 1048576;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fail = (r, c, m) => r.status(c).json({ error: m });
 const sign = (cmd, n = 3600) => getSignedUrl(s3, cmd, { expiresIn: n });
-const get = async id => (await sb.from('mf_videos').select('*').eq('id', id).maybeSingle()).data;
+const get = async id => sb ? (await sb.from('mf_videos').select('*').eq('id', id).maybeSingle()).data : null;
 
 async function isOwner(t) {
-  if (!t) return false;
+  if (!sb || !t) return false;
   const u = (await sb.auth.getUser(t)).data?.user;
   return !!u?.email_confirmed_at && u.email?.toLowerCase() === (E.OWNER_EMAIL || '').toLowerCase();
 }
@@ -28,11 +32,16 @@ app.set('trust proxy', 1);
 app.use(express.json({ limit: '100kb' }));
 app.use(express.static('public', { index: false, maxAge: '1h' }));
 
-app.get('/api/health', (q, r) => r.json({ ok: true, service: 'mahiframe' }));
+app.get('/api/health', (q, r) => r.json({
+  ok: true,
+  service: 'mahiframe',
+  setup: { supabase: Boolean(sb), storage: Boolean(s3), publicConfig: Boolean(configured(E.SUPABASE_URL) && configured(E.SUPABASE_ANON_KEY)) }
+}));
 
 app.get('/api/config', (q, r) => r.json({ supabaseUrl: E.SUPABASE_URL, anonKey: E.SUPABASE_ANON_KEY }));
 
 app.get('/api/public', async (q, r) => {
+  if (!sb) return fail(r, 503, 'MahiFrame setup incomplete: add SUPABASE_SERVICE_KEY in the hosting environment.');
   const [p, v] = await Promise.all([
     sb.from('mf_profile').select('*').eq('id', 1).maybeSingle(),
     sb.from('mf_videos').select('id,title,description,category,width,height,duration,featured,created_at').eq('published', true).eq('status', 'ready').order('position')]);
@@ -41,6 +50,7 @@ app.get('/api/public', async (q, r) => {
 
 // Private bucket: public viewers get a short-lived signed R2 link (supports Range/seek). Drafts need the owner token.
 async function media(q, r, col) {
+  if (!sb || !s3) return fail(r, 503, 'MahiFrame setup incomplete: configure Supabase and Cloudflare R2 environment variables.');
   const v = await get(q.params.id);
   if (!v?.[col]) return r.sendStatus(404);
   const token = (q.headers.authorization || '').replace(/^Bearer\\s+/i, '') || q.query.t;
@@ -52,7 +62,7 @@ app.get('/api/v/:id/thumb', (q, r) => media(q, r, 'thumb_key'));
 
 const tpl = readFileSync('public/index.html', 'utf8');
 async function page(q, r, v) {
-  const p = (await sb.from('mf_profile').select('*').eq('id', 1).maybeSingle()).data || {};
+  const p = sb ? ((await sb.from('mf_profile').select('*').eq('id', 1).maybeSingle()).data || {}) : {};
   const o = E.PUBLIC_URL || `${q.protocol}://${q.get('host')}`, n = p.name || 'MahiFrame';
   const t = v ? `${v.title} — ${n}` : `${n} — MahiFrame`, d = v?.description || p.bio || 'A personal video showcase.';
   const img = v?.thumb_key ? `${o}/api/v/${v.id}/thumb` : p.avatar_url || '';
@@ -65,7 +75,12 @@ app.get('/admin', (q, r) => r.sendFile('admin.html', { root: 'public' }));
 
 // ---------- owner API ----------
 const A = express.Router();
+A.use((q, r, n) => {
+  if (!sb) return fail(r, 503, 'MahiFrame setup incomplete: add SUPABASE_URL and SUPABASE_SERVICE_KEY in the hosting environment.');
+  n();
+});
 A.use(auth);
+const requireR2 = (q, r, n) => s3 ? n() : fail(r, 503, 'Cloudflare R2 is not configured. Add R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY.');
 A.get('/videos', async (q, r) => r.json({ videos: (await sb.from('mf_videos').select('*').order('position')).data || [] }));
 A.get('/videos/:id/thumb-view-url', async (q, r) => {
   const v = await get(q.params.id);
@@ -73,7 +88,7 @@ A.get('/videos/:id/thumb-view-url', async (q, r) => {
   r.json({ url: await sign(new GetObjectCommand({ Bucket: B, Key: v.thumb_key })) });
 });
 
-A.post('/upload/init', async (q, r) => {
+A.post('/upload/init', requireR2, async (q, r) => {
   const { name, type, size, width, height, duration } = q.body, ext = TYPES[type];
   if (!ext) return fail(r, 400, 'Unsupported file type. Use MP4, MOV or WebM.');
   if (!(Number.isFinite(Number(duration)) && Number(duration) >= 1 && Number(duration) <= 90)) return fail(r, 400, 'Videos must be between 1 and 90 seconds.');
@@ -85,12 +100,12 @@ A.post('/upload/init', async (q, r) => {
   if (error) { await s3.send(new AbortMultipartUploadCommand({ Bucket: B, Key: key, UploadId })).catch(() => {}); return fail(r, 500, error.message); }
   r.json({ id, partSize: PART });
 });
-A.post('/upload/part-url', async (q, r) => {
+A.post('/upload/part-url', requireR2, async (q, r) => {
   const v = await get(q.body.id), n = +q.body.part;
   if (v?.status !== 'uploading' || !(n >= 1 && n <= 10000)) return fail(r, 404, 'No active upload.');
   r.json({ url: await sign(new UploadPartCommand({ Bucket: B, Key: v.original_key, UploadId: v.upload_id, PartNumber: n })) });
 });
-A.post('/upload/complete', async (q, r) => {
+A.post('/upload/complete', requireR2, async (q, r) => {
   const v = await get(q.body.id);
   if (v?.status !== 'uploading') return fail(r, 404, 'No active upload.');
   const Parts = (q.body.parts || []).map(p => ({ PartNumber: p.PartNumber, ETag: p.ETag })).sort((a, b) => a.PartNumber - b.PartNumber);
@@ -103,12 +118,12 @@ A.post('/upload/complete', async (q, r) => {
   await sb.from('mf_videos').update({ status: 'ready', upload_id: null, storage_etag: h.ETag }).eq('id', v.id);
   r.json({ ok: true });
 });
-A.post('/upload/abort', async (q, r) => {
+A.post('/upload/abort', requireR2, async (q, r) => {
   const v = await get(q.body.id);
   if (v?.status === 'uploading') { await s3.send(new AbortMultipartUploadCommand({ Bucket: B, Key: v.original_key, UploadId: v.upload_id })).catch(() => {}); await sb.from('mf_videos').delete().eq('id', v.id); }
   r.json({ ok: true });
 });
-A.post('/videos/:id/thumb-url', async (q, r) => {
+A.post('/videos/:id/thumb-url', requireR2, async (q, r) => {
   const ext = IMG[q.body.type], v = await get(q.params.id);
   if (!ext || !v) return fail(r, 400, 'Use a JPEG, PNG or WebP image.');
   const old = v.thumb_key, key = `thumbs/${v.id}-${Date.now()}.${ext}`;
@@ -128,7 +143,7 @@ A.post('/reorder', async (q, r) => {
   await Promise.all((q.body.ids || []).map((id, i) => sb.from('mf_videos').update({ position: i + 1 }).eq('id', id)));
   r.json({ ok: true });
 });
-A.delete('/videos/:id', async (q, r) => {
+A.delete('/videos/:id', requireR2, async (q, r) => {
   const v = await get(q.params.id);
   if (!v) return r.json({ ok: true });
   if (v.status === 'uploading') await s3.send(new AbortMultipartUploadCommand({ Bucket: B, Key: v.original_key, UploadId: v.upload_id })).catch(() => {});
