@@ -28,6 +28,8 @@ app.set('trust proxy', 1);
 app.use(express.json({ limit: '100kb' }));
 app.use(express.static('public', { index: false, maxAge: '1h' }));
 
+app.get('/api/health', (q, r) => r.json({ ok: true, service: 'mahiframe' }));
+
 app.get('/api/config', (q, r) => r.json({ supabaseUrl: E.SUPABASE_URL, anonKey: E.SUPABASE_ANON_KEY }));
 
 app.get('/api/public', async (q, r) => {
