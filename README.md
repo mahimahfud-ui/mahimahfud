@@ -1,29 +1,38 @@
 # MahiFrame
 
-Video showcase. Originals go to a private Cloudflare R2 bucket byte-for-byte; a small Node API (Express) handles owner auth, signed multipart uploads and signed streaming links. Supabase holds only login and `mf_*` metadata tables (RLS on). Clips are limited to 1–90 seconds.
+A premium video showcase with a centered creator profile and a responsive gallery. Supabase Auth protects the owner dashboard and Supabase stores metadata in isolated `mf_*` tables. Cloudinary stores uploaded original videos and separate cover images.
 
-## Status
-Written, not yet run against real R2/Supabase accounts. Nothing here has been tested end-to-end or deployed. Follow step 6 before trusting it.
+## Free-plan limits
+
+- The connected Cloudinary account currently reports the Free plan, 25 monthly credits, and 0 credits used at the time checked.
+- This app caps each video at **100 MB** and each clip at **1–90 seconds**. Cloudinary's account limit reports 100 MB per video upload. Storage, delivery bandwidth, and transformations consume Cloudinary free-plan credits.
+- Uploads are signed by the server and sent directly from the browser to Cloudinary. The original is uploaded without requested transformations; after upload the server checks the asset byte count against the selected file size.
+- The gallery delivers the original video, not a separately transcoded playback variant. Some H.265/HEVC MOV files may not play in all browsers; H.264 MP4 is the most compatible choice.
+- Cloudinary upload assets use public delivery URLs by default. Unpublishing removes a video from the gallery, but anyone with the direct Cloudinary URL may still access it. Do not upload confidential footage.
 
 ## Setup
-1. **R2** (Cloudflare dashboard → R2): create bucket `mahiframe` (keep it private, no public access). Create an API token with *Object Read & Write* on that bucket; copy the Account ID, Access Key ID and Secret.
-2. **R2 CORS** (bucket → Settings → CORS policy), replace the origin with your real URL:
-   `[{"AllowedOrigins":["https://YOUR-APP.onrender.com","http://localhost:3000"],"AllowedMethods":["PUT","GET","HEAD"],"AllowedHeaders":["*"],"ExposeHeaders":["ETag"],"MaxAgeSeconds":3600}]`
-   Also add a lifecycle rule: *abort incomplete multipart uploads after 1 day*.
-3. **Supabase** (existing project is fine; tables are `mf_*`, nothing else is touched): SQL Editor → run `sql/schema.sql`. Authentication → Users → add your owner user (email + password, confirmed). Copy the URL, anon key and service_role key. The service key is server-only. Only the email in `OWNER_EMAIL` gets owner rights, even if other users exist in the project.
-4. **Config**: copy `.env.example` to `.env` and fill it in. Run locally with `npm install && npm run dev`, then open `/admin`.
-5. **Deploy on Render**: use this repository (`mahimahfud-ui/mahimahfud`) to create a Node Web Service (build `npm install`, start `npm start`, region Singapore if available). Add every variable from `.env.example` in the service's Environment tab and set `PUBLIC_URL` to the final URL. Do not put `.env` or server keys in GitHub. If you already have a Render service for this repo, update that service rather than creating a duplicate. Put the final URL in your Instagram bio.
-6. **Test before announcing**: upload a small clip, then a large 4K file; publish; open the link in a private window and on your phone; seek around; unpublish and confirm it disappears; refresh the page.
 
-## Likely costs (check current pricing pages)
-- Supabase: your existing project; no new cost.
-- R2: has a free tier (about 10 GB storage, free egress), may require a payment method on file. Beyond the free tier, storage is billed per GB-month.
-- Render: the free web service sleeps when idle, so the first visitor can wait about a minute. A paid instance avoids this. Lowest-cost path: free tier first, upgrade only if cold starts bother you.
-- No domain is needed; the `onrender.com` URL works in Instagram.
+1. **Supabase**: use the existing project configured for this app. The `mf_profile` and `mf_videos` tables already exist. In Authentication → Users, add an owner user with a confirmed email. Only the matching `OWNER_EMAIL` is allowed to administer the app.
+2. **Cloudinary**: open the Cloudinary Console. Copy your Cloud Name and API Key from the dashboard and reveal/copy the API Secret from account settings. Never share or commit the API Secret.
+3. **Render**: open the existing MahiFrame service and add these Environment variables:
+   - `CLOUDINARY_CLOUD_NAME` — Cloudinary Cloud Name
+   - `CLOUDINARY_API_KEY` — Cloudinary API Key
+   - `CLOUDINARY_API_SECRET` — Cloudinary API Secret
+   - `SUPABASE_SERVICE_KEY` — Supabase server-side secret key
+   - `OWNER_EMAIL` — your confirmed Supabase owner email
+   - Keep `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `PUBLIC_URL` as currently configured.
+   - Set `MAX_UPLOAD_MB=100`.
+   Save changes and deploy.
+4. **Verify**: open `/api/health`. `setup.supabase`, `setup.storage`, and `setup.publicConfig` should all be `true`.
+5. **Test**: open `/admin`, sign in, upload a 5–10 second MP4 under 50 MB, and confirm it appears in the public gallery. Test playback and seeking on another device.
 
-## Behaviour to know
-- Original uploads are never re-encoded. The thumbnail is a separate JPEG captured from one frame in your browser (or one you choose).
-- No playback copy is generated. Visitors always get the original. H.265/HEVC `.mov` files from phones may not play in Chrome or Firefox; export H.264 MP4 if you need broad playback.
-- Integrity check: after upload the API compares the stored byte size to your file's size. R2 also validates each part's checksum. A full-file hash is not computed.
-- Unpublishing stops new access immediately, but a signed link already handed out can work for up to 1 hour.
-- Parts upload one at a time with 4 attempts each; cancel aborts and cleans up the partial upload.
+## Deployment
+
+The Render blueprint is in `render.yaml`. The public URL is `https://mahiframe-showcase.onrender.com`. Render's free service may sleep when idle, so the first request after sleep can be delayed.
+
+## Security notes
+
+- Never commit `.env`, Cloudinary API Secret, or Supabase service key to GitHub.
+- The owner dashboard uses Supabase Auth; only the email configured in `OWNER_EMAIL` can administer uploads.
+- Unpublishing hides a video from the catalogue but does not revoke a public Cloudinary delivery URL.
+- Check Cloudinary Usage periodically before uploading a large batch. Free-plan credits are shared by storage, bandwidth, and transformations.
