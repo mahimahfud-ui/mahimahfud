@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!--OG-->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080809">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="A personal video showcase by MahiFrame.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#080809;--panel:#111113;--panel2:#171719;--line:rgba(255,255,255,.09);--muted:#96969f;--text:#f8f8fa;--red:#e44350;--red-soft:#70252d;--max:1180px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh;overflow-x:hidden}body:before{content:"";position:fixed;z-index:-2;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% -20%,rgba(160,34,48,.24),transparent 45%),radial-gradient(ellipse at 90% 55%,rgba(90,27,38,.11),transparent 40%)}body:after{content:"";position:fixed;z-index:-1;inset:0;pointer-events:none;opacity:.13;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E")}
+    a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff747d;outline-offset:3px}.shell{width:min(var(--max),calc(100% - 48px));margin:auto}.topbar{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.055)}.brand{display:flex;align-items:center;gap:10px;font-family:Manrope,sans-serif;font-weight:800;letter-spacing:-.6px}.brandmark{width:31px;height:31px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,#f14d5d,#781f2d);box-shadow:0 7px 26px #a52d3b35}.brandmark svg{width:16px}.brand span{color:#a4a4ad;font-weight:500}.toplinks{display:flex;align-items:center;gap:18px;color:#b4b4bc;font-size:13px}.admin-link{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);border-radius:99px;color:#ebebef;transition:background .2s,border .2s}.admin-link:hover{background:#ffffff0a;border-color:#ffffff25}
+    .profile{padding:58px 0 36px;display:flex;align-items:center;flex-direction:column;text-align:center;animation:rise .8s cubic-bezier(.2,.7,.2,1) both}.avatar-wrap{width:100px;height:100px;padding:3px;border-radius:50%;background:linear-gradient(145deg,#f46b78,#532029 65%,#201417);box-shadow:0 10px 50px #a72d3a23;position:relative}.avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#1b1b1f;border:3px solid var(--bg)}.verified{position:absolute;right:0;bottom:3px;width:25px;height:25px;border:3px solid var(--bg);border-radius:50%;background:#e74b59;display:grid;place-items:center;color:white;font-size:12px}.profile h1{font:800 clamp(27px,4vw,38px)/1.15 Manrope,sans-serif;letter-spacing:-1.5px;margin:20px 0 7px}.handle{font-size:13px;color:#bb777f;letter-spacing:.2px}.bio{color:#b5b5bd;line-height:1.7;font-size:14px;max-width:520px;margin:15px auto 0;white-space:pre-line}.location{font-size:12px;color:#8f8f99;margin-top:12px;display:flex;gap:6px;align-items:center}.socials{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:20px}.social{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:99px;border:1px solid var(--line);background:#ffffff04;color:#d8d8dd;font-size:12px;transition:transform .22s,border-color .22s,background .22s}.social:hover{transform:translateY(-2px);border-color:#c84a58aa;background:#e4435010}.stats{display:flex;justify-content:center;gap:27px;margin-top:26px}.stat{display:flex;align-items:center;gap:7px;font-size:12px;color:#a9a9b2}.stat strong{font:700 14px Manrope;color:#f4f4f5}.stat-dot{width:4px;height:4px;border-radius:50%;background:#e44350;box-shadow:0 0 10px #e44350}
+    .intro{display:flex;justify-content:space-between;align-items:end;gap:20px;padding:34px 0 16px;border-top:1px solid var(--line)}.eyebrow{text-transform:uppercase;letter-spacing:2.3px;font-size:10px;color:#ba646e;font-weight:700;margin-bottom:9px}.section-title{font:700 clamp(22px,3vw,30px)/1.15 Manrope,sans-serif;letter-spacing:-1px;margin:0}.section-sub{font-size:13px;color:var(--muted);margin:8px 0 0}.library-tools{display:flex;align-items:center;gap:10px}.search{width:218px;max-width:42vw;background:#ffffff06;border:1px solid var(--line);color:var(--text);border-radius:99px;padding:11px 14px 11px 37px;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%237f7f88' stroke-width='1.7'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m16 16 4.5 4.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:13px center;transition:border .2s}.search:focus{border-color:#aa3e4a}.view-toggle{display:flex;padding:4px;border:1px solid var(--line);border-radius:99px;background:#ffffff04}.view-toggle button{width:30px;height:29px;border:0;border-radius:99px;background:transparent;color:#8e8e97;display:grid;place-items:center}.view-toggle button.active{background:#ffffff12;color:white}.filters{display:flex;align-items:center;gap:8px;overflow:auto;padding:2px 0 21px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{white-space:nowrap;border:1px solid var(--line);background:transparent;color:#a1a1aa;padding:8px 13px;border-radius:99px;font-size:12px;transition:all .2s}.filter:hover{color:white;border-color:#ffffff2e}.filter.active{color:white;background:#e443501a;border-color:#b9414d77}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px 18px;padding-bottom:68px}.grid.compact{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.video-card{min-width:0;cursor:pointer;animation:rise .65s cubic-bezier(.2,.7,.2,1) both}.poster{position:relative;aspect-ratio:var(--ratio,16/10);overflow:hidden;border-radius:13px;background:linear-gradient(135deg,#18181c,#211116 55%,#111113);border:1px solid #ffffff0c;isolation:isolate;transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .28s,box-shadow .28s}.poster:before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(ellipse at 80% 10%,#b5394740,transparent 40%),linear-gradient(145deg,#29292e,#111114 70%)}.poster img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .65s cubic-bezier(.2,.7,.2,1),opacity .3s}.video-card:hover .poster{transform:translateY(-3px);border-color:#e4435045;box-shadow:0 14px 35px #0008}.video-card:hover .poster img{transform:scale(1.045)}.play-chip{position:absolute;left:13px;bottom:13px;width:38px;height:38px;display:grid;place-items:center;background:#08080ac7;border:1px solid #ffffff30;backdrop-filter:blur(10px);border-radius:50%;transition:transform .22s,background .22s}.video-card:hover .play-chip{transform:scale(1.08);background:#c93848e8}.duration{position:absolute;right:10px;bottom:10px;background:#09090bcc;border:1px solid #ffffff14;padding:5px 7px;border-radius:6px;font-size:10px;color:#f3f3f5;backdrop-filter:blur(8px);font-variant-numeric:tabular-nums}.original-label{position:absolute;top:10px;left:10px;background:#080809ad;border:1px solid #ffffff1c;color:#e5e5e9;padding:5px 7px;border-radius:6px;text-transform:uppercase;font-size:9px;letter-spacing:1px;backdrop-filter:blur(8px)}.card-details{padding:12px 2px 0;display:flex;align-items:start;justify-content:space-between;gap:8px}.card-title{font:600 14px/1.4 Manrope,sans-serif;margin:0;overflow-wrap:anywhere}.card-description{font-size:12px;line-height:1.55;color:#96969f;margin:6px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.card-meta{display:flex;align-items:center;gap:8px;margin-top:9px;color:#7f7f89;font-size:10px;text-transform:uppercase;letter-spacing:1px}.category-dot{width:3px;height:3px;background:#d94a58;border-radius:50%}.icon-btn{flex:0 0 auto;width:31px;height:31px;display:grid;place-items:center;color:#a8a8b0;background:#ffffff06;border:1px solid var(--line);border-radius:50%;transition:all .2s}.icon-btn:hover{color:white;border-color:#cf4a58;background:#e4435015}.empty{grid-column:1/-1;text-align:center;padding:65px 20px;border:1px dashed #ffffff1a;border-radius:18px;color:#a8a8b0}.empty strong{display:block;color:#f0f0f3;font:600 18px Manrope;margin-bottom:8px}.skeleton{border-radius:13px;aspect-ratio:16/10;background:linear-gradient(100deg,#111114 25%,#232327 40%,#111114 55%);background-size:220% 100%;animation:shimmer 1.6s infinite}.footer{border-top:1px solid var(--line);padding:25px 0 38px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:#73737d;font-size:11px}.footer-brand{font-family:Manrope;font-weight:800;color:#bcbcc3}.footer span strong{color:#d6d6db;font-weight:600}
+    .modal{position:fixed;z-index:50;inset:0;display:none;align-items:center;justify-content:center;padding:22px;background:#030304eF;backdrop-filter:blur(22px);opacity:0;transition:opacity .25s}.modal.open{display:flex;opacity:1}.modal-box{width:min(100%,980px);max-height:calc(100dvh - 44px);overflow:auto;border:1px solid #ffffff18;background:#101012;border-radius:19px;box-shadow:0 30px 100px #000c;transform:translateY(10px) scale(.99);transition:transform .3s cubic-bezier(.2,.8,.2,1)}.modal.open .modal-box{transform:translateY(0) scale(1)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;border-bottom:1px solid var(--line)}.modal-kicker{text-transform:uppercase;letter-spacing:1.8px;font-size:10px;color:#ba6972}.modal-close{width:34px;height:34px;border:1px solid var(--line);background:#ffffff06;color:white;border-radius:50%;font-size:21px;line-height:1}.player-wrap{background:#000;max-height:70vh;display:grid;place-items:center}.player{display:block;width:100%;max-height:70vh;aspect-ratio:16/9;object-fit:contain;background:#000}.modal-info{padding:19px 21px 22px;display:flex;align-items:start;justify-content:space-between;gap:20px}.modal-info h2{font:700 20px/1.3 Manrope;margin:0;letter-spacing:-.5px}.modal-info p{font-size:13px;line-height:1.65;color:#b0b0b8;white-space:pre-line;margin:9px 0 0}.modal-actions{display:flex;flex-wrap:wrap;gap:7px;justify-content:end;flex:0 0 auto}.pill-btn{padding:9px 12px;border-radius:99px;border:1px solid #ffffff18;color:#e2e2e6;background:#ffffff05;font-size:11px;white-space:nowrap}.pill-btn:hover{border-color:#c34552;background:#c345520e}.quality-note{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#85858f;margin-top:12px}.toast{position:fixed;z-index:80;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#f4f4f5;color:#18181b;padding:11px 16px;border-radius:99px;font-size:12px;box-shadow:0 8px 32px #0008;transition:opacity .2s,transform .2s;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}.error-note{color:#f0a1a8;background:#e4435010;border:1px solid #e4435030;padding:12px 15px;border-radius:10px;font-size:12px}
+    @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes shimmer{to{background-position-x:-220%}}
+    @media(min-width:1000px){.profile{padding-top:67px}.poster{aspect-ratio:var(--ratio,16/10)}}@media(max-width:760px){.shell{width:calc(100% - 32px)}.topbar{height:64px}.profile{padding-top:42px}.avatar-wrap{width:88px;height:88px}.intro{align-items:start;flex-direction:column}.library-tools{width:100%;justify-content:space-between}.search{width:100%;max-width:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:23px 12px}.grid.compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.card-title{font-size:13px}.poster{border-radius:11px}.play-chip{width:33px;height:33px;left:9px;bottom:9px}.duration{right:7px;bottom:7px}.original-label{top:7px;left:7px;font-size:8px}.modal{padding:10px}.modal-box{max-height:calc(100dvh - 20px);border-radius:14px}.modal-info{flex-direction:column;padding:15px;gap:12px}.modal-actions{justify-content:start}.player-wrap,.player{max-height:55vh}.footer{align-items:start;flex-direction:column;gap:8px}}@media(max-width:400px){.grid{gap:20px 9px}.card-description{font-size:11px}.card-title{font-size:12px}.toplinks{gap:8px}.toplinks .hint{display:none}.stats{gap:16px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="MahiFrame home"><span class="brandmark"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 4.7v10.6L15 10 6 4.7Z" fill="white"/></svg></span>MahiFrame <span>/ showcase</span></a>
+    <nav class="toplinks"><span class="hint">Personal video archive</span><a class="admin-link" href="/admin"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z"/><path d="M8 9V6a4 4 0 1 1 8 0v3"/></svg> Owner</a></nav>
+  </header>
+  <main class="shell">
+    <section class="profile" aria-label="Creator profile">
+      <div class="avatar-wrap"><img id="avatar" class="avatar" alt="Creator profile photo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x2='1' y2='1'%3E%3Cstop stop-color='%23bc3c4b'/%3E%3Cstop offset='1' stop-color='%23201519'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='50' fill='url(%23g)'/%3E%3Ctext x='50' y='59' fill='white' text-anchor='middle' font-family='Arial' font-size='34' font-weight='700'%3EM%3C/text%3E%3C/svg%3E"><span id="verified" class="verified" hidden aria-label="Verified creator">✓</span></div>
+      <h1 id="creator-name">MahiFrame</h1><div id="handle" class="handle">@mahimahfud</div>
+      <p id="bio" class="bio">Short films. Small moments. Original quality.</p>
+      <div id="location" class="location" hidden><span aria-hidden="true">⌖</span><span></span></div>
+      <div id="socials" class="socials"></div>
+      <div class="stats"><div class="stat"><span class="stat-dot"></span><strong id="video-count">0</strong><span>videos</span></div><div class="stat"><strong>4K</strong><span>originals welcome</span></div><div class="stat"><strong>90s</strong><span>short-form stories</span></div></div>
+    </section>
+    <section aria-labelledby="library-title">
+      <div class="intro"><div><div class="eyebrow">Selected moments · 01</div><h2 id="library-title" class="section-title">The video collection</h2><p class="section-sub">A few seconds can hold a whole world.</p></div><div class="library-tools"><input id="search" class="search" type="search" placeholder="Search the collection" aria-label="Search videos"><div class="view-toggle" aria-label="Gallery layout"><button id="comfortable" class="active" aria-label="Comfortable grid" title="Comfortable grid"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><rect x="2" y="2" width="7" height="7" rx="1.2"/><rect x="11" y="2" width="7" height="7" rx="1.2"/><rect x="2" y="11" width="7" height="7" rx="1.2"/><rect x="11" y="11" width="7" height="7" rx="1.2"/></svg></button><button id="compact" aria-label="Compact grid" title="Compact grid"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="2" width="5" height="16" rx="1"/><rect x="7.5" y="2" width="5" height="16" rx="1"/><rect x="14" y="2" width="5" height="16" rx="1"/></svg></button></div></div></div>
+      <div id="filters" class="filters" aria-label="Filter by category"><button class="filter active" data-filter="all">All moments</button></div>
+      <div id="gallery" class="grid" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+      <div id="load-error" hidden class="error-note">The collection could not be loaded just now. Please refresh in a moment.</div>
+    </section>
+  </main>
+  <footer class="footer shell"><a class="footer-brand" href="/">MahiFrame<span style="color:#6f6f78;font-weight:500"> · personal cinema</span></a><span>Made to be watched, <strong>not scrolled past.</strong></span><span>© <span id="year"></span></span></footer>
+  <div id="player-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box"><div class="modal-head"><span class="modal-kicker">MahiFrame · Original file</span><button id="close-modal" class="icon-btn" aria-label="Close video player" style="font-size:20px">×</button></div><div class="player-wrap"><video id="player" class="player" controls playsinline preload="metadata"></video></div><div class="modal-info"><div><h2 id="modal-title"></h2><p id="modal-description"></p><div id="modal-meta" class="quality-note">Original upload · no generated quality variants</div></div><div class="modal-actions"><button class="pill-btn" id="share-video">↗ Share video</button><button class="pill-btn" id="copy-video">⧉ Copy link</button></div></div></div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    (() => {
+      const $ = s => document.querySelector(s);
+      const state = { profile:{}, videos:[], filter:'all', query:'', compact:false, active:null };
+      const safeUrl = value => { try { const u = new URL(value); return ['https:','http:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } };
+      const escapeText = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const toast = (text) => { const t=$('#toast'); t.textContent=text; t.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>t.classList.remove('show'),2200); };
+      const duration = n => { if (!Number.isFinite(Number(n)) || Number(n)<0) return ''; const s=Math.floor(Number(n)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+      const niceDate = value => { try { return new Intl.DateTimeFormat(undefined,{month:'short',year:'numeric'}).format(new Date(value)); } catch { return ''; } };
+      const fileUrl = id => '/api/v/'+encodeURIComponent(id)+'/file';
+      const thumbUrl = id => '/api/v/'+encodeURIComponent(id)+'/thumb';
+      function socialLink(s) {
+        const href=safeUrl(s?.url); if(!href) return '';
+        const label=String(s.label||new URL(href).hostname.replace(/^www\./,'')).slice(0,30);
+        return '<a class="social" href="'+escapeText(href)+'" target="_blank" rel="noopener noreferrer"><span>↗</span>'+escapeText(label)+'</a>';
+      }
+      function renderProfile() {
+        const p=state.profile||{};
+        $('#creator-name').textContent=p.name||'MahiFrame';
+        $('#handle').textContent=p.handle||'@mahimahfud';
+        $('#bio').textContent=p.bio||'';
+        const avatar=safeUrl(p.avatar_url||'');
+        if(avatar) $('#avatar').src=avatar;
+        $('#verified').hidden=!p.verified;
+        const loc=$('#location');
+        loc.hidden=!(p.location||'').trim();
+        loc.querySelector('span:last-child').textContent=p.location||'';
+        $('#socials').innerHTML=(Array.isArray(p.socials)?p.socials:[]).map(socialLink).join('');
+      }
+      function renderFilters() {
+        const cats=[...new Set(state.videos.map(v=>(v.category||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+        $('#filters').innerHTML='<button class="filter '+(state.filter==='all'?'active':'')+'" data-filter="all">All moments</button>'+cats.map(c=>'<button class="filter '+(state.filter===c?'active':'')+'" data-filter="'+escapeText(c)+'">'+escapeText(c)+'</button>').join('');
+      }
+      function renderGallery() {
+        const list=state.videos.filter(v=>{
+          const q=state.query.toLowerCase();
+          const matches=state.filter==='all'||(v.category||'')===state.filter;
+          return matches&&(!q||[v.title,v.description,v.category].some(t=>String(t||'').toLowerCase().includes(q)));
+        });
+        $('#video-count').textContent=String(state.videos.length);
+        const grid=$('#gallery'); grid.classList.toggle('compact',state.compact);
+        if(!list.length){
+          grid.innerHTML='<div class="empty"><strong>'+((state.videos.length||state.query||state.filter!=='all')?'No matching moments':'Your collection starts here')+'</strong><span>'+((state.videos.length||state.query||state.filter!=='all')?'Try another search or category.':'Videos published from the owner dashboard will appear here.')+'</span></div>'; return;
+        }
+        grid.innerHTML=list.map((v,i)=>{
+          const title=escapeText(v.title||'Untitled video'), desc=escapeText(v.description||''), cat=escapeText(v.category||'Video'), dur=duration(v.duration);
+          const hasThumb=!!v.id;
+          return '<article class="video-card" data-id="'+escapeText(v.id)+'" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="poster" style="--ratio:'+(Number(v.width)>0&&Number(v.height)>0?Number(v.width)+' / '+Number(v.height):'16 / 10')+'">'+(hasThumb?'<img loading="lazy" decoding="async" alt="" src="'+thumbUrl(v.id)+'" onerror="this.style.display=\'none\'">':'')+'<span class="original-label">Original</span><span class="play-chip" aria-hidden="true"><svg width="13" height="15" viewBox="0 0 15 17" fill="white"><path d="M2 1.5 13 8.5 2 15.5v-14Z"/></svg></span>'+(dur?'<span class="duration">'+dur+'</span>':'')+'</div><div class="card-details"><div style="min-width:0"><h3 class="card-title">'+title+'</h3>'+(desc?'<p class="card-description">'+desc+'</p>':'')+'<div class="card-meta"><span>'+cat+'</span><span class="category-dot"></span><span>'+escapeText(niceDate(v.created_at))+'</span>'+(v.featured?'<span class="category-dot"></span><span>Featured</span>':'')+'</div></div><button class="icon-btn share-card" data-share="'+escapeText(v.id)+'" aria-label="Share '+title+'" title="Share video">↗</button></div></article>';
+        }).join('');
+      }
+      function render() { renderProfile(); renderFilters(); renderGallery(); }
+      function openPlayer(v) {
+        if(!v) return; state.active=v;
+        const modal=$('#player-modal'), player=$('#player');
+        $('#modal-title').textContent=v.title||'Untitled video';
+        $('#modal-description').textContent=v.description||'';
+        $('#modal-meta').textContent='Original upload'+(v.width&&v.height?' · '+v.width+' × '+v.height:'')+' · no quality variants generated';
+        player.pause(); player.removeAttribute('src'); player.load();
+        player.src=fileUrl(v.id);
+        const im=$('#player-modal .player-wrap');
+        im.style.aspectRatio=(v.width>0&&v.height>0)?v.width+' / '+v.height:'16 / 9';
+        modal.classList.add('open'); document.body.style.overflow='hidden';
+        history.replaceState(null,'','/v/'+encodeURIComponent(v.id));
+        player.focus({preventScroll:true});
+      }
+      function closePlayer(updatePath=true) {
+        const modal=$('#player-modal'); if(!modal.classList.contains('open')) return;
+        const player=$('#player'); player.pause(); player.removeAttribute('src'); player.load();
+        modal.classList.remove('open'); document.body.style.overflow='';
+        if(updatePath && /^\/v\//.test(location.pathname)) history.replaceState(null,'','/');
+        state.active=null;
+      }
+      async function copy(text) {
+        try { await navigator.clipboard.writeText(text); toast('Link copied'); }
+        catch { const e=document.createElement('textarea'); e.value=text; e.style.position='fixed';e.style.opacity='0';document.body.append(e);e.select();document.execCommand('copy');e.remove();toast('Link copied'); }
+      }
+      async function share(v) {
+        const url=new URL('/v/'+encodeURIComponent(v.id),location.origin).href;
+        if(navigator.share) { try { await navigator.share({title:v.title||'MahiFrame video',text:v.description||'Watch this video on MahiFrame',url}); } catch(e) { if(e?.name!=='AbortError') copy(url); } }
+        else copy(url);
+      }
+      $('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;state.filter=b.dataset.filter;renderFilters();renderGallery();});
+      $('#search').addEventListener('input',e=>{state.query=e.target.value.trim();renderGallery();});
+      $('#gallery').addEventListener('click',e=>{const sh=e.target.closest('[data-share]');if(sh){e.stopPropagation();const v=state.videos.find(v=>v.id===sh.dataset.share);if(v)share(v);return;}const card=e.target.closest('[data-id]');if(card)openPlayer(state.videos.find(v=>v.id===card.dataset.id));});
+      $('#comfortable').addEventListener('click',()=>{state.compact=false;$('#comfortable').classList.add('active');$('#compact').classList.remove('active');$('#gallery').classList.remove('compact');});
+      $('#compact').addEventListener('click',()=>{state.compact=true;$('#compact').classList.add('active');$('#comfortable').classList.remove('active');$('#gallery').classList.add('compact');});
+      $('#close-modal').addEventListener('click',()=>closePlayer());
+      $('#player-modal').addEventListener('click',e=>{if(e.target.id==='player-modal')closePlayer();});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')closePlayer();});
+      $('#copy-video').addEventListener('click',()=>state.active&&copy(new URL('/v/'+encodeURIComponent(state.active.id),location.origin).href));
+      $('#share-video').addEventListener('click',()=>state.active&&share(state.active));
+      $('#year').textContent=new Date().getFullYear();
+      async function init(){
+        try{
+          const r=await fetch('/api/public',{headers:{Accept:'application/json'}});
+          if(!r.ok)throw new Error('HTTP '+r.status);
+          const data=await r.json(); state.profile=data.profile||{}; state.videos=Array.isArray(data.videos)?data.videos:[];
+          render();
+          const match=location.pathname.match(/^\/v\/([^/]+)$/);
+          if(match){const v=state.videos.find(x=>x.id===decodeURIComponent(match[1]));if(v)openPlayer(v);}
+        }catch(e){
+          console.error('MahiFrame collection load failed',e);
+          $('#gallery').innerHTML='<div class="empty"><strong>Something went quiet.</strong><span>The video collection could not be loaded. Please try refreshing.</span></div>';
+          $('#load-error').hidden=false;
+        }
+      }
+      init();
+    })();
+  </script>
+</body>
+</html>
