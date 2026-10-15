@@ -1,24 +1,24 @@
 import express from 'express';
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, HeadObjectCommand, DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { v2 as cloudinary } from 'cloudinary';
 import { createClient } from '@supabase/supabase-js';
 
-const E = process.env, B = E.R2_BUCKET;
+const E = process.env;
 const configured = value => Boolean(value && !/^SET_|^YOUR-/i.test(String(value).trim()));
-const hasR2 = configured(E.R2_ACCOUNT_ID) && configured(E.R2_ACCESS_KEY_ID) && configured(E.R2_SECRET_ACCESS_KEY) && configured(B);
+const hasCloudinary = configured(E.CLOUDINARY_CLOUD_NAME) && configured(E.CLOUDINARY_API_KEY) && configured(E.CLOUDINARY_API_SECRET);
 const hasSupabase = configured(E.SUPABASE_URL) && configured(E.SUPABASE_SERVICE_KEY);
-const s3 = hasR2 ? new S3Client({ region: 'auto', endpoint: `https://${E.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`, credentials: { accessKeyId: E.R2_ACCESS_KEY_ID, secretAccessKey: E.R2_SECRET_ACCESS_KEY } }) : null;
+if (hasCloudinary) cloudinary.config({ cloud_name: E.CLOUDINARY_CLOUD_NAME, api_key: E.CLOUDINARY_API_KEY, api_secret: E.CLOUDINARY_API_SECRET, secure: true });
 const sb = hasSupabase ? createClient(E.SUPABASE_URL, E.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } }) : null;
-const needs = (...items) => items.filter(([ok]) => !ok).map(([, name]) => name);
 const TYPES = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm' };
 const IMG = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
-const MAXMB = Number(E.MAX_UPLOAD_MB || 2048), PART = 16 * 1048576;
+const MAXMB = Math.min(100, Number(E.MAX_UPLOAD_MB || 100));
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fail = (r, c, m) => r.status(c).json({ error: m });
-const sign = (cmd, n = 3600) => getSignedUrl(s3, cmd, { expiresIn: n });
 const get = async id => sb ? (await sb.from('mf_videos').select('*').eq('id', id).maybeSingle()).data : null;
+const signUpload = (publicId, timestamp) => cloudinary.utils.api_sign_request({ public_id: publicId, timestamp }, E.CLOUDINARY_API_SECRET);
+const videoUrl = v => cloudinary.url(v.original_key, { secure: true, resource_type: 'video', format: TYPES[v.mime] || 'mp4' });
+const imageUrl = publicId => cloudinary.url(publicId, { secure: true, resource_type: 'image' });
 
 async function isOwner(t) {
   if (!sb || !t) return false;
@@ -35,7 +35,7 @@ app.use(express.static('public', { index: false, maxAge: '1h' }));
 app.get('/api/health', (q, r) => r.json({
   ok: true,
   service: 'mahiframe',
-  setup: { supabase: Boolean(sb), storage: Boolean(s3), publicConfig: Boolean(configured(E.SUPABASE_URL) && configured(E.SUPABASE_ANON_KEY)) }
+  setup: { supabase: Boolean(sb), storage: Boolean(hasCloudinary), publicConfig: Boolean(configured(E.SUPABASE_URL) && configured(E.SUPABASE_ANON_KEY)) }
 }));
 
 app.get('/api/config', (q, r) => r.json({ supabaseUrl: E.SUPABASE_URL, anonKey: E.SUPABASE_ANON_KEY }));
@@ -48,14 +48,14 @@ app.get('/api/public', async (q, r) => {
   r.set('Cache-Control', 'public, max-age=30').json({ profile: p.data || {}, videos: v.data || [] });
 });
 
-// Private bucket: public viewers get a short-lived signed R2 link (supports Range/seek). Drafts need the owner token.
+// Cloudinary stores the uploaded original; delivery URLs do not request transformations.
 async function media(q, r, col) {
-  if (!sb || !s3) return fail(r, 503, 'MahiFrame setup incomplete: configure Supabase and Cloudflare R2 environment variables.');
+  if (!sb || !hasCloudinary) return fail(r, 503, 'MahiFrame setup incomplete: configure Supabase and Cloudinary environment variables.');
   const v = await get(q.params.id);
   if (!v?.[col]) return r.sendStatus(404);
-  const token = (q.headers.authorization || '').replace(/^Bearer\\s+/i, '') || q.query.t;
+  const token = (q.headers.authorization || '').replace(/^Bearer\s+/i, '') || q.query.t;
   if (!(v.published && v.status === 'ready') && !(await isOwner(token))) return r.sendStatus(404);
-  r.set('Cache-Control', 'private, max-age=300').redirect(302, await sign(new GetObjectCommand({ Bucket: B, Key: v[col] })));
+  r.set('Cache-Control', 'public, max-age=300').redirect(302, col === 'original_key' ? videoUrl(v) : imageUrl(v.thumb_key));
 }
 app.get('/api/v/:id/file', (q, r) => media(q, r, 'original_key'));
 app.get('/api/v/:id/thumb', (q, r) => media(q, r, 'thumb_key'));
@@ -80,56 +80,82 @@ A.use((q, r, n) => {
   n();
 });
 A.use(auth);
-const requireR2 = (q, r, n) => s3 ? n() : fail(r, 503, 'Cloudflare R2 is not configured. Add R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY.');
+const requireCloudinary = (q, r, n) => hasCloudinary ? n() : fail(r, 503, 'Cloudinary is not configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET in Render Environment.');
 A.get('/videos', async (q, r) => r.json({ videos: (await sb.from('mf_videos').select('*').order('position')).data || [] }));
 A.get('/videos/:id/thumb-view-url', async (q, r) => {
   const v = await get(q.params.id);
   if (!v?.thumb_key) return fail(r, 404, 'No cover image.');
-  r.json({ url: await sign(new GetObjectCommand({ Bucket: B, Key: v.thumb_key })) });
+  r.json({ url: imageUrl(v.thumb_key) });
 });
 
-A.post('/upload/init', requireR2, async (q, r) => {
-  const { name, type, size, width, height, duration } = q.body, ext = TYPES[type];
-  if (!ext) return fail(r, 400, 'Unsupported file type. Use MP4, MOV or WebM.');
+A.post('/upload/init', requireCloudinary, async (q, r) => {
+  const { name, type, size, width, height, duration } = q.body;
+  if (!TYPES[type]) return fail(r, 400, 'Unsupported video type. Use MP4, MOV or WebM.');
   if (!(Number.isFinite(Number(duration)) && Number(duration) >= 1 && Number(duration) <= 90)) return fail(r, 400, 'Videos must be between 1 and 90 seconds.');
-  if (!(size > 0) || size > MAXMB * 1048576) return fail(r, 413, `File is larger than the ${MAXMB} MB limit.`);
-  const id = randomUUID(), key = `originals/${id}.${ext}`;
-  const { UploadId } = await s3.send(new CreateMultipartUploadCommand({ Bucket: B, Key: key, ContentType: type }));
+  if (!(Number(size) > 0) || Number(size) > MAXMB * 1048576) return fail(r, 413, `Cloudinary Free upload limit is ${MAXMB} MB per video.`);
+  const id = randomUUID(), publicId = `mahiframe/${id}`, timestamp = Math.floor(Date.now() / 1000);
   const last = (await sb.from('mf_videos').select('position').order('position', { ascending: false }).limit(1)).data?.[0]?.position ?? 0;
-  const { error } = await sb.from('mf_videos').insert({ id, title: String(name).replace(/\.[^.]+$/, '').slice(0, 120), original_name: String(name).slice(0, 255), mime: type, size, width: width || null, height: height || null, duration: duration || null, original_key: key, upload_id: UploadId, position: last + 1 });
-  if (error) { await s3.send(new AbortMultipartUploadCommand({ Bucket: B, Key: key, UploadId })).catch(() => {}); return fail(r, 500, error.message); }
-  r.json({ id, partSize: PART });
+  const { error } = await sb.from('mf_videos').insert({
+    id, title: String(name).replace(/\.[^.]+$/, '').slice(0, 120), original_name: String(name).slice(0, 255),
+    mime: type, size: Number(size), width: width || null, height: height || null, duration: Number(duration),
+    original_key: publicId, upload_id: null, position: last + 1, status: 'uploading'
+  });
+  if (error) return fail(r, 500, 'Could not create video record.');
+  r.json({
+    id, public_id: publicId, timestamp, signature: signUpload(publicId, timestamp),
+    api_key: E.CLOUDINARY_API_KEY, cloud_name: E.CLOUDINARY_CLOUD_NAME,
+    upload_url: `https://api.cloudinary.com/v1_1/${E.CLOUDINARY_CLOUD_NAME}/video/upload`
+  });
 });
-A.post('/upload/part-url', requireR2, async (q, r) => {
-  const v = await get(q.body.id), n = +q.body.part;
-  if (v?.status !== 'uploading' || !(n >= 1 && n <= 10000)) return fail(r, 404, 'No active upload.');
-  r.json({ url: await sign(new UploadPartCommand({ Bucket: B, Key: v.original_key, UploadId: v.upload_id, PartNumber: n })) });
-});
-A.post('/upload/complete', requireR2, async (q, r) => {
+A.post('/upload/complete', requireCloudinary, async (q, r) => {
   const v = await get(q.body.id);
-  if (v?.status !== 'uploading') return fail(r, 404, 'No active upload.');
-  const Parts = (q.body.parts || []).map(p => ({ PartNumber: p.PartNumber, ETag: p.ETag })).sort((a, b) => a.PartNumber - b.PartNumber);
-  await s3.send(new CompleteMultipartUploadCommand({ Bucket: B, Key: v.original_key, UploadId: v.upload_id, MultipartUpload: { Parts } }));
-  const h = await s3.send(new HeadObjectCommand({ Bucket: B, Key: v.original_key }));
-  if (h.ContentLength !== Number(v.size)) {
-    await s3.send(new DeleteObjectCommand({ Bucket: B, Key: v.original_key })); await sb.from('mf_videos').delete().eq('id', v.id);
-    return fail(r, 422, `Integrity check failed: sent ${v.size} bytes, storage holds ${h.ContentLength}. The upload was discarded.`);
+  if (!v || v.status !== 'uploading' || q.body.public_id !== v.original_key) return fail(r, 404, 'No matching active upload.');
+  try {
+    const asset = await cloudinary.api.resource(v.original_key, { resource_type: 'video', type: 'upload' });
+    if (Number(asset.bytes) !== Number(v.size)) {
+      await cloudinary.uploader.destroy(v.original_key, { resource_type: 'video', type: 'upload', invalidate: true }).catch(() => {});
+      await sb.from('mf_videos').delete().eq('id', v.id);
+      return fail(r, 422, `Original integrity check failed: expected ${v.size} bytes, Cloudinary reports ${asset.bytes}. Upload discarded.`);
+    }
+    await sb.from('mf_videos').update({ status: 'ready', upload_id: null, storage_etag: String(asset.version || asset.etag || '') }).eq('id', v.id);
+    r.json({ ok: true, bytes: asset.bytes, format: asset.format });
+  } catch (e) {
+    console.error('Cloudinary asset verification failed', e?.message || e);
+    return fail(r, 502, 'Could not verify the uploaded asset with Cloudinary. Retry or remove the draft.');
   }
-  await sb.from('mf_videos').update({ status: 'ready', upload_id: null, storage_etag: h.ETag }).eq('id', v.id);
-  r.json({ ok: true });
 });
-A.post('/upload/abort', requireR2, async (q, r) => {
+A.post('/upload/abort', requireCloudinary, async (q, r) => {
   const v = await get(q.body.id);
-  if (v?.status === 'uploading') { await s3.send(new AbortMultipartUploadCommand({ Bucket: B, Key: v.original_key, UploadId: v.upload_id })).catch(() => {}); await sb.from('mf_videos').delete().eq('id', v.id); }
+  if (v?.status === 'uploading') {
+    await cloudinary.uploader.destroy(v.original_key, { resource_type: 'video', type: 'upload', invalidate: true }).catch(() => {});
+    await sb.from('mf_videos').delete().eq('id', v.id);
+  }
   r.json({ ok: true });
 });
-A.post('/videos/:id/thumb-url', requireR2, async (q, r) => {
+A.post('/videos/:id/thumb-url', requireCloudinary, async (q, r) => {
   const ext = IMG[q.body.type], v = await get(q.params.id);
-  if (!ext || !v) return fail(r, 400, 'Use a JPEG, PNG or WebP image.');
-  const old = v.thumb_key, key = `thumbs/${v.id}-${Date.now()}.${ext}`;
-  await sb.from('mf_videos').update({ thumb_key: key }).eq('id', v.id);
-  if (old) s3.send(new DeleteObjectCommand({ Bucket: B, Key: old })).catch(() => {});
-  r.json({ url: await sign(new PutObjectCommand({ Bucket: B, Key: key, ContentType: q.body.type })) });
+  if (!ext || !v || v.status !== 'ready') return fail(r, 400, 'Use a JPEG, PNG or WebP image for a ready video.');
+  const publicId = `mahiframe/thumbs/${v.id}-${randomUUID()}`, timestamp = Math.floor(Date.now() / 1000);
+  r.json({
+    public_id: publicId, timestamp, signature: signUpload(publicId, timestamp),
+    api_key: E.CLOUDINARY_API_KEY, cloud_name: E.CLOUDINARY_CLOUD_NAME,
+    upload_url: `https://api.cloudinary.com/v1_1/${E.CLOUDINARY_CLOUD_NAME}/image/upload`
+  });
+});
+A.post('/videos/:id/thumb-complete', requireCloudinary, async (q, r) => {
+  const v = await get(q.params.id), publicId = String(q.body.public_id || '');
+  if (!v || v.status !== 'ready' || !publicId.startsWith(`mahiframe/thumbs/${v.id}-`)) return fail(r, 400, 'Invalid thumbnail upload.');
+  try {
+    const asset = await cloudinary.api.resource(publicId, { resource_type: 'image', type: 'upload' });
+    if (Number(asset.bytes) !== Number(q.body.bytes)) return fail(r, 422, 'Thumbnail size verification failed.');
+    const old = v.thumb_key;
+    await sb.from('mf_videos').update({ thumb_key: publicId }).eq('id', v.id);
+    if (old) await cloudinary.uploader.destroy(old, { resource_type: 'image', type: 'upload', invalidate: true }).catch(() => {});
+    r.json({ ok: true, url: imageUrl(publicId) });
+  } catch (e) {
+    console.error('Cloudinary thumbnail verification failed', e?.message || e);
+    return fail(r, 502, 'Could not verify the thumbnail with Cloudinary.');
+  }
 });
 A.patch('/videos/:id', async (q, r) => {
   const u = { updated_at: new Date().toISOString() };
@@ -143,11 +169,11 @@ A.post('/reorder', async (q, r) => {
   await Promise.all((q.body.ids || []).map((id, i) => sb.from('mf_videos').update({ position: i + 1 }).eq('id', id)));
   r.json({ ok: true });
 });
-A.delete('/videos/:id', requireR2, async (q, r) => {
+A.delete('/videos/:id', requireCloudinary, async (q, r) => {
   const v = await get(q.params.id);
   if (!v) return r.json({ ok: true });
-  if (v.status === 'uploading') await s3.send(new AbortMultipartUploadCommand({ Bucket: B, Key: v.original_key, UploadId: v.upload_id })).catch(() => {});
-  for (const Key of [v.original_key, v.thumb_key].filter(Boolean)) await s3.send(new DeleteObjectCommand({ Bucket: B, Key })).catch(() => {});
+  if (v.original_key) await cloudinary.uploader.destroy(v.original_key, { resource_type: 'video', type: 'upload', invalidate: true }).catch(() => {});
+  if (v.thumb_key) await cloudinary.uploader.destroy(v.thumb_key, { resource_type: 'image', type: 'upload', invalidate: true }).catch(() => {});
   await sb.from('mf_videos').delete().eq('id', v.id);
   r.json({ ok: true });
 });
