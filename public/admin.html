@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080809"><title>Owner Studio — MahiFrame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#09090b;--card:#131316;--line:#ffffff13;--muted:#9999a3;--text:#f6f6f8;--red:#e34553;--green:#7ddbb0}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -25%,#68202b55,transparent 46%),var(--bg);font:14px "DM Sans",sans-serif;color:var(--text);min-height:100vh}a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #f06a76;outline-offset:2px}.shell{max-width:1170px;width:calc(100% - 40px);margin:auto}.top{display:flex;justify-content:space-between;align-items:center;height:72px;border-bottom:1px solid var(--line)}.brand{font:800 17px Manrope;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}.logo{width:30px;height:30px;display:grid;place-items:center;background:linear-gradient(145deg,#f35462,#76212e);border-radius:10px}.brand small{font:500 12px "DM Sans";color:var(--muted)}.top-actions{display:flex;gap:10px}.btn{border:1px solid var(--line);background:#ffffff08;color:#e5e5e9;padding:10px 14px;border-radius:10px;font-size:12px;transition:background .2s,border-color .2s}.btn:hover{background:#ffffff12;border-color:#ffffff27}.btn.primary{background:linear-gradient(135deg,#dc4453,#9f2939);border-color:#dd4655;color:white;box-shadow:0 7px 24px #d93b4b23}.btn.danger{color:#f19aa2;border-color:#d9495838}.btn.small{padding:7px 9px}.btn:disabled{opacity:.45;cursor:not-allowed}.pagehead{padding:35px 0 24px;display:flex;align-items:end;justify-content:space-between;gap:20px}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:10px;color:#ca717a;font-weight:700;margin-bottom:9px}.pagehead h1{font:800 clamp(26px,4vw,35px)/1.15 Manrope;letter-spacing:-1.3px;margin:0}.pagehead p{color:var(--muted);margin:9px 0 0;line-height:1.6}.tag{border:1px solid #ffffff12;border-radius:99px;background:#ffffff06;color:#aaaab3;font-size:11px;padding:8px 11px;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(270px,.75fr);gap:18px;align-items:start;padding-bottom:60px}.stack{display:grid;gap:18px}.panel{border:1px solid var(--line);background:linear-gradient(150deg,#141417f2,#101013f5);border-radius:17px;padding:20px;box-shadow:0 15px 45px #0002}.panel-head{display:flex;justify-content:space-between;align-items:start;gap:15px;margin-bottom:18px}.panel-head h2{font:700 17px Manrope;letter-spacing:-.5px;margin:0}.panel-head p{font-size:12px;color:var(--muted);margin:6px 0 0;line-height:1.5}.field{display:grid;gap:7px;margin-bottom:14px}.field label{font-size:11px;color:#b9b9c1;font-weight:600}.field input,.field textarea,.field select{width:100%;border:1px solid #ffffff16;background:#09090c;color:#f3f3f6;border-radius:10px;padding:12px 13px;outline:none;transition:border-color .2s}.field input:focus,.field textarea:focus{border-color:#b6404c}.field textarea{min-height:82px;resize:vertical;line-height:1.55}.field small{font-size:10px;color:#858590;line-height:1.45}.two{display:grid;grid-template-columns:1fr 1fr;gap:11px}.drop{position:relative;border:1px dashed #ffffff28;border-radius:13px;padding:20px 15px;text-align:center;background:#ffffff03;transition:border .2s,background .2s}.drop:hover{border-color:#df4d5b75;background:#e3455307}.drop input{display:block;width:100%;max-width:100%;font-size:11px;color:#aaaab3;margin-top:12px}.drop strong{display:block;font-size:13px;margin-bottom:5px}.drop span{font-size:11px;color:var(--muted);line-height:1.5}.upload-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.progress-wrap{display:none;margin-top:14px}.progress-top{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#c4c4cb;margin-bottom:8px}.progress-track{height:5px;border-radius:99px;background:#ffffff12;overflow:hidden}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#b63040,#ff7180);border-radius:99px;transition:width .1s}.notice{border-radius:11px;background:#ffffff05;border:1px solid #ffffff0e;color:#aaaab3;font-size:11px;line-height:1.55;padding:12px;margin-top:15px}.notice strong{color:#e6e6eb}.notice.warn{border-color:#e0a24c25;background:#e0a24c08;color:#d6be9a}.notice.error{border-color:#e3455338;background:#e3455309;color:#f0a7ad}.status{font-size:10px;text-transform:uppercase;letter-spacing:1px;border-radius:99px;padding:5px 8px;background:#ffffff09;color:#a9a9b2}.status.ready{background:#47bb8d16;color:#8ce3bd}.status.draft{background:#e5b15a12;color:#dfbd85}.video-list{display:grid;gap:11px}.video-item{display:grid;grid-template-columns:92px minmax(0,1fr);gap:14px;padding:12px;border:1px solid #ffffff10;background:#ffffff03;border-radius:13px}.thumb{aspect-ratio:4/3;overflow:hidden;border-radius:8px;background:linear-gradient(145deg,#29141a,#141417);position:relative}.thumb img{width:100%;height:100%;object-fit:cover}.item-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.item-title input{min-width:0;flex:1;background:transparent;border:0;border-bottom:1px solid #ffffff14;padding:5px 0;color:white;font:600 13px Manrope}.item-meta{display:flex;flex-wrap:wrap;gap:9px;color:#898994;font-size:10px;margin-top:7px}.item-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.item-fields input,.item-fields textarea{width:100%;background:#08080a;border:1px solid #ffffff10;border-radius:8px;color:#e8e8ec;padding:8px;font-size:11px;min-width:0}.item-fields textarea{min-height:36px;resize:vertical;grid-column:1/-1}.item-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px}.switch{display:inline-flex;align-items:center;gap:7px;color:#bdbdc5;font-size:11px}.switch input{accent-color:#e34553}.item-actions{display:flex;flex-wrap:wrap;gap:5px}.empty{padding:35px 18px;border:1px dashed #ffffff18;border-radius:12px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}.profile-preview{display:flex;align-items:center;gap:12px;margin-bottom:17px}.avatar{width:48px;height:48px;border-radius:50%;background:#25161b;border:1px solid #ffffff20;object-fit:cover}.profile-preview strong{font:700 13px Manrope;display:block}.profile-preview span{color:var(--muted);font-size:11px;display:block;margin-top:4px}.login-wrap{width:min(440px,calc(100% - 32px));margin:10vh auto}.login-wrap .panel{padding:26px}.login-wrap .logo{width:42px;height:42px;border-radius:13px;margin-bottom:17px}.login-wrap h1{font:800 27px Manrope;margin:0;letter-spacing:-.8px}.login-wrap p{font-size:12px;color:var(--muted);line-height:1.65;margin:9px 0 22px}.login-error{font-size:11px;color:#f19ba3;line-height:1.6;margin-bottom:12px}.hidden{display:none!important}.footer{padding:20px 0 35px;color:#74747e;border-top:1px solid var(--line);font-size:11px;display:flex;justify-content:space-between;gap:10px}.toast{position:fixed;z-index:20;left:50%;bottom:24px;transform:translate(-50%,14px);opacity:0;pointer-events:none;background:#f4f4f5;color:#17171a;padding:11px 16px;border-radius:99px;font-size:12px;transition:all .2s;box-shadow:0 10px 35px #0008;max-width:calc(100% - 32px);text-align:center}.toast.show{transform:translate(-50%,0);opacity:1}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.pagehead{align-items:start;flex-direction:column}.two{grid-template-columns:1fr 1fr}}@media(max-width:550px){.shell{width:calc(100% - 24px)}.top{height:62px}.top .btn{padding:8px 10px}.brand small{display:none}.panel{padding:15px;border-radius:14px}.two{grid-template-columns:1fr}.video-item{grid-template-columns:76px minmax(0,1fr);gap:10px;padding:9px}.item-fields{grid-template-columns:1fr}.item-fields textarea{grid-column:auto}.item-bottom{align-items:start;flex-direction:column}.footer{flex-direction:column}.login-wrap{margin:7vh auto}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="boot" class="login-wrap"><section class="panel"><div class="logo">▶</div><h1>Owner Studio</h1><p>Connecting to MahiFrame configuration…</p></section></div>
+<section id="login" class="login-wrap hidden">
+  <div class="panel"><div class="logo">▶</div><div class="eyebrow">Private creator space</div><h1>Welcome back.</h1><p>Sign in with the owner account configured for MahiFrame. Only the email defined by <code>OWNER_EMAIL</code> is authorized to make changes.</p>
+    <form id="login-form"><div class="field"><label for="email">OWNER EMAIL</label><input id="email" type="email" autocomplete="username" required placeholder="you@example.com"></div><div class="field"><label for="password">PASSWORD</label><input id="password" type="password" autocomplete="current-password" required placeholder="Your password"></div><div id="login-error" class="login-error" role="alert"></div><button class="btn primary upload-btn" type="submit">Sign in to Owner Studio ↗</button></form>
+    <div class="notice">Your session is managed by Supabase Auth. Keep storage and service-role credentials on the server only.</div>
+  </div>
+</section>
+<div id="dashboard" class="hidden">
+  <header class="top shell"><a class="brand" href="/"><span class="logo">▶</span>MahiFrame <small>/ Owner Studio</small></a><div class="top-actions"><a href="/" class="btn">↗ View public site</a><button id="signout" class="btn">Sign out</button></div></header>
+  <main class="shell">
+    <section class="pagehead"><div><div class="eyebrow">Private creator space · 01</div><h1>Make every frame count.</h1><p>Keep the original. Curate the feeling.</p></div><span id="connection-tag" class="tag">Secure session</span></section>
+    <div class="layout">
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Upload an original</h2><p>Large multipart upload with retry and real byte progress.</p></div><span class="status">R2</span></div>
+          <form id="upload-form">
+            <div class="drop"><strong>Choose your original video</strong><span>MP4, MOV or WebM · original bytes are stored unchanged</span><input id="video-file" type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" required></div>
+            <div class="two" style="margin-top:15px"><div class="field"><label for="title">VIDEO TITLE</label><input id="title" maxlength="120" required placeholder="Golden hour, 6:14 PM"></div><div class="field"><label for="category">CATEGORY</label><input id="category" maxlength="80" placeholder="Visual diary"></div></div>
+            <div class="field"><label for="description">DESCRIPTION</label><textarea id="description" maxlength="1800" placeholder="A little context, if the moment needs it…"></textarea></div>
+            <div class="field"><label for="thumbnail">CUSTOM COVER (OPTIONAL)</label><input id="thumbnail" type="file" accept="image/jpeg,image/png,image/webp"><small>If omitted, the browser will try to capture a frame from the original. A cover is a separate image and never changes the video.</small></div>
+            <label class="switch" style="margin:0 0 15px"><input id="publish-now" type="checkbox" checked> Publish as soon as upload finishes</label>
+            <button id="start-upload" class="btn primary upload-btn" type="submit">↑ Upload original video</button>
+            <div id="progress-wrap" class="progress-wrap"><div class="progress-top"><span id="progress-label">Preparing upload…</span><strong id="progress-percent">0%</strong></div><div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button id="cancel-upload" class="btn small danger" type="button">Cancel upload</button></div></div>
+          </form>
+          <div class="notice"><strong>No transcoding.</strong> Files are uploaded directly to private Cloudflare R2 storage. The app checks stored byte size against the source. Browser playback depends on the original codec; HEVC/H.265 MOV files may not play in every browser.</div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Your collection</h2><p>Edit details, switch publishing, change covers and reorder the gallery.</p></div><button id="refresh-videos" class="btn small">↻ Refresh</button></div>
+          <div id="video-list" class="video-list"><div class="empty">Loading your collection…</div></div>
+        </section>
+      </div>
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Creator profile</h2><p>The center of your public page.</p></div></div>
+          <div class="profile-preview"><img id="profile-avatar-preview" class="avatar" alt=""><div><strong id="profile-name-preview">MahiFrame</strong><span id="profile-handle-preview">@mahimahfud</span></div></div>
+          <form id="profile-form">
+            <div class="field"><label for="profile-name">DISPLAY NAME</label><input id="profile-name" maxlength="120" required></div>
+            <div class="field"><label for="profile-handle">HANDLE</label><input id="profile-handle" maxlength="100" placeholder="@mahimahfud"></div>
+            <div class="field"><label for="profile-bio">BIO</label><textarea id="profile-bio" maxlength="600"></textarea></div>
+            <div class="field"><label for="profile-avatar">AVATAR IMAGE URL</label><input id="profile-avatar" type="url" placeholder="https://…"></div>
+            <div class="field"><label for="profile-location">LOCATION (OPTIONAL)</label><input id="profile-location" maxlength="100" placeholder="Dhaka, Bangladesh"></div>
+            <div class="field"><label for="profile-socials">SOCIAL LINKS</label><textarea id="profile-socials" placeholder="Instagram | https://instagram.com/yourname&#10;YouTube | https://youtube.com/@yourname"></textarea><small>One per line, format: Label | full https:// URL.</small></div>
+            <div class="field"><label for="profile-categories">CATEGORY LABELS</label><input id="profile-categories" placeholder="Cinematic, Daily life, Travel"><small>Comma-separated. Gallery filters are generated from video categories.</small></div>
+            <label class="switch" style="margin-bottom:15px"><input id="profile-verified" type="checkbox"> Display verified creator mark</label>
+            <button class="btn primary upload-btn" type="submit">Save profile</button>
+          </form>
+        </section>
+        <section class="panel"><div class="panel-head"><div><h2>Before sharing</h2><p>Quick safety and quality checks.</p></div></div>
+          <div class="notice"><strong>Test privately first.</strong> Publish a short clip, open it in a private browser window, try seeking, and verify it on a phone.</div>
+          <div class="notice"><strong>Original quality stays original.</strong> This app does not produce 4K from lower-resolution files or offer fake quality options. The public player streams the uploaded master.</div>
+          <div class="notice warn"><strong>Signed-link limit.</strong> A viewer's already issued signed media link can remain valid for up to one hour even after unpublishing. New requests are denied immediately.</div>
+          <div class="notice">Storage and hosting costs depend on file sizes and usage. Review your Cloudflare R2 and Render usage before sharing widely.</div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <footer class="footer shell"><span>MahiFrame Owner Studio · Original quality, intentionally.</span><span>Store secrets in server environment variables only.</span></footer>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+(async()=>{
+  const $=s=>document.querySelector(s);
+  const state={client:null,session:null,videos:[],profile:{},upload:null,activeXhr:null,cancelled:false};
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),2600);};
+  const setError=(el,m)=>{el.textContent=m||'';};
+  function show(which){$('#boot').classList.add('hidden');$('#login').classList.toggle('hidden',which!=='login');$('#dashboard').classList.toggle('hidden',which!=='dashboard');}
+  function sessionToken(){return state.session?.access_token||'';}
+  async function api(path,options={}){
+    const headers={...(options.headers||{}),'Content-Type':'application/json'};
+    if(sessionToken())headers.Authorization='Bearer '+sessionToken();
+    const res=await fetch(path,{...options,headers});
+    let data={};try{data=await res.json();}catch{}
+    if(!res.ok)throw new Error(data.error||('Request failed ('+res.status+')'));
+    return data;
+  }
+  function sizeLabel(bytes){if(!Number.isFinite(Number(bytes)))return '';const u=['B','KB','MB','GB','TB'];let n=Number(bytes),i=0;while(n>=1024&&i<u.length-1){n/=1024;i++;}return n.toFixed(i?1:0)+' '+u[i];}
+  function timeLabel(n){if(!Number.isFinite(Number(n)))return '';n=Math.floor(Number(n));return Math.floor(n/60)+':'+String(n%60).padStart(2,'0');}
+  function profileInputs(p){
+    $('#profile-name').value=p.name||'MahiFrame';$('#profile-handle').value=p.handle||'@mahimahfud';$('#profile-bio').value=p.bio||'';
+    $('#profile-avatar').value=p.avatar_url||'';$('#profile-location').value=p.location||'';$('#profile-verified').checked=!!p.verified;
+    $('#profile-socials').value=(Array.isArray(p.socials)?p.socials:[]).map(s=>(s.label||'Link')+' | '+s.url).join('\n');
+    $('#profile-categories').value=(Array.isArray(p.categories)?p.categories:[]).join(', ');
+    updatePreview();
+  }
+  function updatePreview(){
+    $('#profile-name-preview').textContent=$('#profile-name').value||'MahiFrame';
+    $('#profile-handle-preview').textContent=$('#profile-handle').value||'';
+    $('#profile-avatar-preview').src=$('#profile-avatar').value||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 50%22%3E%3Crect width=%2250%22 height=%2250%22 rx=%2225%22 fill=%22%23351b22%22/%3E%3Ctext x=%2225%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2221%22%3EM%3C/text%3E%3C/svg%3E';
+  }
+  ['#profile-name','#profile-handle','#profile-avatar'].forEach(s=>$(s).addEventListener('input',updatePreview));
+  async function loadProfile(){const d=await api('/api/public',{headers:{Accept:'application/json'}});state.profile=d.profile||{};profileInputs(state.profile);}
+  async function loadVideos(){
+    const d=await api('/api/admin/videos',{headers:{Accept:'application/json'}});state.videos=Array.isArray(d.videos)?d.videos:[];
+    const root=$('#video-list');
+    if(!state.videos.length){root.innerHTML='<div class="empty">No videos yet.<br>Your first original will appear here after upload.</div>';return;}
+    root.innerHTML=state.videos.map((v,i)=>{
+      const img=v.thumb_key?'<img alt="" loading="lazy" src="/api/v/'+esc(v.id)+'/thumb?t='+encodeURIComponent(sessionToken())+'">':'';
+      return '<article class="video-item" data-id="'+esc(v.id)+'"><div class="thumb">'+img+'</div><div><div class="item-title"><input data-field="title" maxlength="120" aria-label="Video title" value="'+esc(v.title||'')+'"><span class="status '+(v.status==='ready'?(v.published?'ready':'draft'):'')+'">'+esc(v.status==='ready'?(v.published?'Published':'Draft'):v.status)+'</span></div><div class="item-meta"><span>'+esc(sizeLabel(v.size))+'</span><span>'+esc(timeLabel(v.duration))+'</span><span>'+(v.width&&v.height?esc(v.width+' × '+v.height):'Resolution unknown')+'</span></div><div class="item-fields"><input data-field="category" maxlength="80" aria-label="Category" placeholder="Category" value="'+esc(v.category||'')+'"><input data-field="cover" class="cover-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Replace cover"><textarea data-field="description" maxlength="1800" aria-label="Description" placeholder="Description">'+esc(v.description||'')+'</textarea></div><div class="item-bottom"><label class="switch"><input data-field="published" type="checkbox" '+(v.published?'checked':'')+' '+(v.status!=='ready'?'disabled':'')+'> Published</label><label class="switch"><input data-field="featured" type="checkbox" '+(v.featured?'checked':'')+'> Featured</label><div class="item-actions"><button class="btn small" data-action="up" '+(i===0?'disabled':'')+' title="Move up">↑</button><button class="btn small" data-action="down" '+(i===state.videos.length-1?'disabled':'')+' title="Move down">↓</button><button class="btn small" data-action="save">Save</button><button class="btn small danger" data-action="delete">Delete</button></div></div></div></article>';
+    }).join('');
+  }
+  async function refresh(){try{await Promise.all([loadProfile(),loadVideos()]);}catch(e){toast(e.message);}}
+  function inspectVideo(file){
+    return new Promise(resolve=>{
+      const v=document.createElement('video'),u=URL.createObjectURL(file);let done=false;
+      const finish=val=>{if(done)return;done=true;URL.revokeObjectURL(u);v.removeAttribute('src');v.load();resolve(val);};
+      v.preload='metadata';v.muted=true;v.onloadedmetadata=()=>finish({width:Math.round(v.videoWidth||0),height:Math.round(v.videoHeight||0),duration:Number.isFinite(v.duration)?Math.round(v.duration*1000)/1000:null});
+      v.onerror=()=>finish({width:null,height:null,duration:null});v.src=u;
+      setTimeout(()=>finish({width:null,height:null,duration:null}),8000);
+    });
+  }
+  async function createThumbnail(file){
+    return new Promise(resolve=>{
+      const video=document.createElement('video'),url=URL.createObjectURL(file);let done=false;
+      const finish=blob=>{if(done)return;done=true;URL.revokeObjectURL(url);video.removeAttribute('src');video.load();resolve(blob||null);};
+      video.muted=true;video.playsInline=true;video.preload='metadata';
+      video.onerror=()=>finish(null);
+      video.onloadedmetadata=()=>{try{video.currentTime=Math.min(.5,Math.max(0,(video.duration||1)/3));}catch{finish(null);}};
+      video.onseeked=()=>{try{const c=document.createElement('canvas');c.width=Math.min(video.videoWidth||1280,1280);c.height=Math.max(1,Math.round(c.width*(video.videoHeight||720)/(video.videoWidth||1280)));const ctx=c.getContext('2d');ctx.drawImage(video,0,0,c.width,c.height);c.toBlob(b=>finish(b),'image/jpeg',.9);}catch{finish(null);}};
+      video.src=url;setTimeout(()=>finish(null),12000);
+    });
+  }
+  function setProgress(label,bytes,total){
+    const pct=total?Math.min(100,bytes/total*100):0;
+    $('#progress-label').textContent=label;$('#progress-percent').textContent=Math.round(pct)+'%';$('#progress-fill').style.width=pct+'%';
+  }
+  function xhrPut(url,blob,type,onProgress){
+    return new Promise((resolve,reject)=>{
+      const x=new XMLHttpRequest();state.activeXhr=x;x.open('PUT',url);x.setRequestHeader('Content-Type',type||'application/octet-stream');
+      x.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded);};
+      x.onload=()=>{state.activeXhr=null;if(x.status>=200&&x.status<300)resolve(x.getResponseHeader('ETag'));else reject(new Error('Storage upload failed ('+x.status+'). Check bucket CORS settings.'));};
+      x.onerror=()=>{state.activeXhr=null;reject(new Error('Network error while uploading to storage.'));};
+      x.onabort=()=>{state.activeXhr=null;reject(new Error('Upload cancelled.'));};x.send(blob);
+    });
+  }
+  async function uploadPartWithRetry(id,part,blob,onProgress){
+    let last;
+    for(let attempt=0;attempt<4;attempt++){
+      if(state.cancelled)throw new Error('Upload cancelled.');
+      try{const u=await api('/api/admin/upload/part-url',{method:'POST',body:JSON.stringify({id,part})});return await xhrPut(u.url,blob,'application/octet-stream',onProgress);}
+      catch(e){last=e;if(state.cancelled)throw e;if(attempt<3)await new Promise(r=>setTimeout(r,600*(attempt+1)));}
+    }
+    throw last||new Error('Part upload failed.');
+  }
+  async function uploadCover(id,cover){
+    if(!cover)return;
+    const init=await api('/api/admin/videos/'+encodeURIComponent(id)+'/thumb-url',{method:'POST',body:JSON.stringify({type:cover.type})});
+    await xhrPut(init.url,cover,cover.type,()=>{});
+  }
+  async function startUpload(e){
+    e.preventDefault();const file=$('#video-file').files[0];if(!file)return;
+    const allowed=['video/mp4','video/quicktime','video/webm'];
+    if(!allowed.includes(file.type)){toast('Unsupported video type. Choose MP4, MOV or WebM with a recognizable file type.');return;}
+    state.cancelled=false;state.upload=null;$('#progress-wrap').style.display='block';$('#start-upload').disabled=true;$('#cancel-upload').disabled=false;
+    let uploadId=null,completed=false;
+    try{
+      const meta=await inspectVideo(file);let cover=$('#thumbnail').files[0]||null;
+      setProgress('Preparing upload…',0,file.size);
+      const init=await api('/api/admin/upload/init',{method:'POST',body:JSON.stringify({name:file.name,type:file.type,size:file.size,width:meta.width,height:meta.height,duration:meta.duration})});
+      uploadId=init.id;state.upload=uploadId;
+      const partSize=Number(init.partSize)||16777216,totalParts=Math.ceil(file.size/partSize),parts=[];let uploaded=0;
+      for(let i=0;i<totalParts;i++){
+        if(state.cancelled)throw new Error('Upload cancelled.');
+        const blob=file.slice(i*partSize,Math.min(file.size,(i+1)*partSize));setProgress('Uploading part '+(i+1)+' of '+totalParts+'…',uploaded,file.size);
+        let etag=await uploadPartWithRetry(uploadId,i+1,blob,loaded=>setProgress('Uploading part '+(i+1)+' of '+totalParts+'…',uploaded+loaded,file.size));
+        if(!etag)throw new Error('Storage did not return an ETag. Check R2 CORS ExposeHeaders includes ETag.');
+        parts.push({PartNumber:i+1,ETag:etag});uploaded+=blob.size;setProgress('Uploading…',uploaded,file.size);
+      }
+      if(state.cancelled)throw new Error('Upload cancelled.');
+      setProgress('Verifying stored original…',file.size,file.size);
+      await api('/api/admin/upload/complete',{method:'POST',body:JSON.stringify({id:uploadId,parts})});completed=true;
+      const payload={title:$('#title').value.trim()||file.name,description:$('#description').value.trim(),category:$('#category').value.trim(),published:$('#publish-now').checked,featured:false};
+      await api('/api/admin/videos/'+encodeURIComponent(uploadId),{method:'PATCH',body:JSON.stringify(payload)});
+      if(!cover)cover=await createThumbnail(file);
+      if(cover){
+        if(!cover.type||!['image/jpeg','image/png','image/webp'].includes(cover.type))throw new Error('Thumbnail must be JPEG, PNG or WebP.');
+        await uploadCover(uploadId,cover);
+      }
+      setProgress('Upload complete',file.size,file.size);toast('Original uploaded successfully.');
+      $('#upload-form').reset();$('#progress-label').textContent='Original stored and verified.';await loadVideos();
+    }catch(err){
+      console.error('MahiFrame upload failed',err);
+      if(uploadId&&!completed){try{await api('/api/admin/upload/abort',{method:'POST',body:JSON.stringify({id:uploadId})});}catch{}}
+      setProgress(state.cancelled?'Upload cancelled.':'Upload failed: '+err.message,0,file.size);
+      if(state.cancelled)toast('Upload cancelled.');else toast(err.message||'Upload failed.');
+    }finally{
+      state.upload=null;state.activeXhr=null;$('#start-upload').disabled=false;$('#cancel-upload').disabled=false;
+    }
+  }
+  $('#upload-form').addEventListener('submit',startUpload);
+  $('#cancel-upload').addEventListener('click',()=>{
+    if(!state.upload){state.cancelled=true;return;}
+    state.cancelled=true;$('#cancel-upload').disabled=true;
+    if(state.activeXhr)state.activeXhr.abort();
+    toast('Stopping upload…');
+  });
+  $('#profile-form').addEventListener('submit',async e=>{
+    e.preventDefault();const socials=$('#profile-socials').value.split('\n').map(x=>x.trim()).filter(Boolean).map(row=>{const i=row.indexOf('|');return i<0?{label:'Link',url:row}:{label:row.slice(0,i).trim(),url:row.slice(i+1).trim()};}).filter(s=>/^https?:\/\//i.test(s.url));
+    const categories=$('#profile-categories').value.split(',').map(x=>x.trim()).filter(Boolean);
+    try{await api('/api/admin/profile',{method:'PUT',body:JSON.stringify({name:$('#profile-name').value.trim(),handle:$('#profile-handle').value.trim(),bio:$('#profile-bio').value,avatar_url:$('#profile-avatar').value.trim(),location:$('#profile-location').value.trim(),socials,categories,verified:$('#profile-verified').checked})});toast('Profile saved.');await loadProfile();}
+    catch(err){toast(err.message);}
+  });
+  $('#video-list').addEventListener('click',async e=>{
+    const btn=e.target.closest('[data-action]');if(!btn)return;const item=btn.closest('[data-id]'),id=item?.dataset.id;if(!id)return;
+    try{
+      if(btn.dataset.action==='delete'){if(!confirm('Permanently delete this video and its stored original? This cannot be undone.'))return;await api('/api/admin/videos/'+encodeURIComponent(id),{method:'DELETE'});toast('Video deleted.');await loadVideos();return;}
+      if(btn.dataset.action==='up'||btn.dataset.action==='down'){
+        const ids=state.videos.map(v=>v.id),i=ids.indexOf(id),j=i+(btn.dataset.action==='up'?-1:1);if(j<0||j>=ids.length)return;
+        [ids[i],ids[j]]=[ids[j],ids[i]];await api('/api/admin/reorder',{method:'POST',body:JSON.stringify({ids})});await loadVideos();return;
+      }
+      if(btn.dataset.action==='save'){
+        const payload={title:item.querySelector('[data-field="title"]').value.trim(),category:item.querySelector('[data-field="category"]').value.trim(),description:item.querySelector('[data-field="description"]').value,published:item.querySelector('[data-field="published"]').checked,featured:item.querySelector('[data-field="featured"]').checked};
+        if(!payload.title){toast('A title is required.');return;}
+        await api('/api/admin/videos/'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify(payload)});
+        const input=item.querySelector('.cover-file'),cover=input?.files?.[0];if(cover){if(!['image/jpeg','image/png','image/webp'].includes(cover.type)){toast('Cover must be JPEG, PNG or WebP.');return;}await uploadCover(id,cover);}
+        toast('Video saved.');await loadVideos();
+      }
+    }catch(err){toast(err.message);}
+  });
+  $('#refresh-videos').addEventListener('click',()=>refresh());
+  $('#signout').addEventListener('click',async()=>{await state.client.auth.signOut();state.session=null;show('login');});
+  $('#login-form').addEventListener('submit',async e=>{
+    e.preventDefault();setError($('#login-error'),'');
+    const b=e.currentTarget.querySelector('button');b.disabled=true;
+    try{const {data,error}=await state.client.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});if(error)throw error;state.session=data.session;show('dashboard');await refresh();}
+    catch(err){setError($('#login-error'),err.message||'Could not sign in.');}
+    finally{b.disabled=false;}
+  });
+  try{
+    const r=await fetch('/api/config');const config=await r.json();
+    if(!r.ok||!config.supabaseUrl||!config.anonKey||!window.supabase?.createClient)throw new Error('Supabase config is missing. Set SUPABASE_URL and SUPABASE_ANON_KEY on the server.');
+    state.client=window.supabase.createClient(config.supabaseUrl,config.anonKey);
+    state.client.auth.onAuthStateChange((_event,session)=>{state.session=session;if(session){show('dashboard');refresh().catch(err=>toast(err.message));}else show('login');});
+    const {data}=await state.client.auth.getSession();state.session=data.session;
+    if(state.session){show('dashboard');await refresh();}else show('login');
+  }catch(err){console.error(err);$('#boot').innerHTML='<section class="panel"><div class="logo">!</div><h1>Configuration needed</h1><p>'+esc(err.message)+'</p><div class="notice">Set server environment variables from <code>.env.example</code>, restart the service, then refresh this page.</div></section>';}
+})();
+</script>
+</body>
+</html>
