@@ -1,6 +1,6 @@
 # MahiFrame
 
-Video showcase. Originals go to a private Cloudflare R2 bucket byte-for-byte; a small Node API (Express) handles owner auth, signed multipart uploads and signed streaming links. Supabase holds only login and `mf_*` metadata tables (RLS on).
+Video showcase. Originals go to a private Cloudflare R2 bucket byte-for-byte; a small Node API (Express) handles owner auth, signed multipart uploads and signed streaming links. Supabase holds only login and `mf_*` metadata tables (RLS on). Clips are limited to 1–90 seconds.
 
 ## Status
 Written, not yet run against real R2/Supabase accounts. Nothing here has been tested end-to-end or deployed. Follow step 6 before trusting it.
@@ -12,7 +12,7 @@ Written, not yet run against real R2/Supabase accounts. Nothing here has been te
    Also add a lifecycle rule: *abort incomplete multipart uploads after 1 day*.
 3. **Supabase** (existing project is fine; tables are `mf_*`, nothing else is touched): SQL Editor → run `sql/schema.sql`. Authentication → Users → add your owner user (email + password, confirmed). Copy the URL, anon key and service_role key. The service key is server-only. Only the email in `OWNER_EMAIL` gets owner rights, even if other users exist in the project.
 4. **Config**: copy `.env.example` to `.env` and fill it in. Run locally with `npm install && npm run dev`, then open `/admin`.
-5. **Deploy on Render**: push to a new GitHub repo, create a Web Service (build `npm install`, start `npm start`), paste the `.env` values as environment variables, and set `PUBLIC_URL` to the final URL. Put that URL in your Instagram bio.
+5. **Deploy on Render**: use this repository (`mahimahfud-ui/mahimahfud`) to create a Node Web Service (build `npm install`, start `npm start`, region Singapore if available). Add every variable from `.env.example` in the service's Environment tab and set `PUBLIC_URL` to the final URL. Do not put `.env` or server keys in GitHub. If you already have a Render service for this repo, update that service rather than creating a duplicate. Put the final URL in your Instagram bio.
 6. **Test before announcing**: upload a small clip, then a large 4K file; publish; open the link in a private window and on your phone; seek around; unpublish and confirm it disappears; refresh the page.
 
 ## Likely costs (check current pricing pages)
