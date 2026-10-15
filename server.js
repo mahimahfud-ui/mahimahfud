@@ -41,7 +41,8 @@ app.get('/api/public', async (q, r) => {
 async function media(q, r, col) {
   const v = await get(q.params.id);
   if (!v?.[col]) return r.sendStatus(404);
-  if (!(v.published && v.status === 'ready') && !(await isOwner(q.query.t))) return r.sendStatus(404);
+  const token = (q.headers.authorization || '').replace(/^Bearer\\s+/i, '') || q.query.t;
+  if (!(v.published && v.status === 'ready') && !(await isOwner(token))) return r.sendStatus(404);
   r.set('Cache-Control', 'private, max-age=300').redirect(302, await sign(new GetObjectCommand({ Bucket: B, Key: v[col] })));
 }
 app.get('/api/v/:id/file', (q, r) => media(q, r, 'original_key'));
@@ -64,6 +65,11 @@ app.get('/admin', (q, r) => r.sendFile('admin.html', { root: 'public' }));
 const A = express.Router();
 A.use(auth);
 A.get('/videos', async (q, r) => r.json({ videos: (await sb.from('mf_videos').select('*').order('position')).data || [] }));
+A.get('/videos/:id/thumb-view-url', async (q, r) => {
+  const v = await get(q.params.id);
+  if (!v?.thumb_key) return fail(r, 404, 'No cover image.');
+  r.json({ url: await sign(new GetObjectCommand({ Bucket: B, Key: v.thumb_key })) });
+});
 
 A.post('/upload/init', async (q, r) => {
   const { name, type, size, width, height, duration } = q.body, ext = TYPES[type];
